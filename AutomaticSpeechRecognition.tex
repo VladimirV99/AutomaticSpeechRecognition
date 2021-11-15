@@ -17,6 +17,7 @@
 \usepackage{listings}
 
 \usepackage{amsmath}
+\usepackage{amsfonts}
 
 % https://tex.stackexchange.com/questions/5223/command-for-argmin-or-argmax
 \DeclareMathOperator*{\argmax}{argmax}
@@ -69,6 +70,7 @@
 
 \abstract{
 U ovom tekstu je ukratko prikazana osnovna forma seminarskog rada. Obratite pažnju da je pored ove .pdf datoteke, u prilogu i odgovarajuća .tex datoteka, kao i .bib datoteka korišćena za generisanje literature. Na prvoj strani seminarskog rada su naslov, apstrakt i sadržaj, i to sve mora da stane na prvu stranu! Kako bi Vaš seminarski zadovoljio standarde i očekivanja, koristite uputstva i materijale sa predavanja na temu pisanja seminarskih radova. Ovo je samo šablon koji se odnosi na fizički izgled seminarskog rada (šablon koji \emph{morate} da koristite!) kao i par tehničkih pomoćnih uputstava. Pročitajte tekst pažljivo jer on sadrži i važne informacije vezane za zahteve obima i karakteristika seminarskog rada.}
+% Tema ovog rada je da priblizi citaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznacajnijim arhitekturama ovih sistema.
 
 \bigskip
 \textbf{Ključne reči:} prepoznavanje govora
@@ -80,11 +82,6 @@ U ovom tekstu je ukratko prikazana osnovna forma seminarskog rada. Obratite paž
 \section{Uvod}
 \label{sec:uvod}
 
-% Performance Evaluation of Offline Speech Recognition on Edge Devices
-% Automatic speech recognition (ASR) is a process of converting speech signals to text. It
-% has a large number of real-world use cases, such as dictation, accessibility, voice assistants,
-% AR/VR applications, captioning of videos, podcasts, searching audio recordings, and
-% automated answering services, to name a few.
 Govor je za ljude najintuitivniji i prirodniji nacin komunikacije. Zbog toga je od samog nastanka kompjutera, nastala i ideja da koristimo isti nacin komunikacije da interagujemo sa njima.
 To bi znatno smanjilo potrebno predznanje za koriscenje kompjutera i ucnilio ga pristupacnijim vecem broju ljudi. Najveca prepreka ovim sistemima do skoro je bio kako sa velikom tacnosti prepoznati sta je korisnik rekao.
 Taj postupak se naziva automatsko prepoznavanje govora.
@@ -110,15 +107,12 @@ Za glavne uzroke ovog naglog poboljsanja se smatraju \cite{hannun2021history}:
 % 2) the rapid rate of progress in graphics processing units
 % 3) the improvement in the learning algorithms and model architectures.
 
-% Tema ovog rada je da priblizi citaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznacajnijim arhitekturama ovih sistema.
-% Tema ovog rada je da opise nacin rada modela za prepoznavanje govora.
 % izlistati poglavlja
 U nastavku cemo prvo navesti neke izazove koje treba da resimo da bi smo napravili dobar sistem za prepoznavanje govora, zatim cemo opisati nacin rada dva najpopularnija modela: statisticki i end-to-end i na kraju cemo predstaviti nacin za njihovu evaluaciju.
 
 \section{Izazovi}
 % https://www.youtube.com/watch?v=q67z7PTGRi8
-% A review...
-Prepoznavanje govora je veoma tezak zadatak zato sto je potrebno da radi podjednako dobro u razlicitim uslovima. %: okruzenje govornika, kvalitet mikrofona, karakteristike govora.
+Prepoznavanje govora je veoma tezak zadatak zato sto je potrebno da radi podjednako dobro u razlicitim uslovima. % okruzenje govornika, kvalitet mikrofona, karakteristike govora.
 % speaker independence
 Ideal kojem se tezi kod ovih sistema je nezavisnost od govornika (speaker independence).
 
@@ -135,7 +129,6 @@ Neki od najvecih izazova su:
 
 \section{Statisticki model}
 % Uday knjiga chap. 8
-% Dugo vremena statisticki modeli su bili dominantni modeli za prepoznavanje govora.
 Dugo vremena statisticki pristup je bio dominantan za sisteme za prepoznavanje govora.
 Cilj ovih sistema je da pronadju najverovatniju transkripciju za zadati signal.
 % Large Vocabulary Continuous Speech Recognition a Review
@@ -151,8 +144,10 @@ a kako je $P(X)$ konstantno za konkretan ulaz, mozemo da ga eliminisemo:
 \begin{equation*}
   \hat{W} = \argmax_{W} P(X|W) P(W)
 \end{equation*}
-Ideja je da odvojeno optimizujemo obe prethodne velicine.
-$P(X|W)$ se zove akusticki model, a $P(W)$ se zove jezicki model.
+Prvi deo, $P(X|W)$, racuna akusticki model, a drugi, $P(W)$, racuna jezicki model.
+Ideja je da odvojeno optimizujemo obe prethodne velicine i ocekujemo da ce se tako maksimizirati ukupna verovatnoca.
+U praksi, $P(X|W)$ je tesko precizno odrediti na nivou reci zbog velikih varijacija u izgovoru, pa se cesce odredjuje na nivou glasova ili fonema.
+Zbog toga se dodatno uvodi i model izgovora (eng.) koji kombinuje te manje jedinice u reci. 
 
 % slika modela
 % https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/_images/ASR.png
@@ -164,30 +159,23 @@ Na slici \ref{fig:statistical_model} je prikazana cela struktura statistickog mo
   \caption{Statisticki model}
   \label{fig:statistical_model}
 \end{figure}
-
-U nastavku ce biti opisana svaka komponenta statistickog modela, njihova uloga i nacin rada.
+U nastavku ce biti opisana svaka od pomenutih komponenti, njena uloga i nacin rada.
 
 \subsection{Procesiranje zvucnog signala}
-% FFT, MFCC, Spectogrami, RNN, CNN, segmentacija
-% audio preprocesiranje, otklanjanje buke (moze da se trenira na buku)
-% problem je otkloniti drugog govornika
-% podela na okvire (frame)
-% Prvi korak prepoznavanju govora je obrada ulaznog signala.
-Sirovi zvucni signal je veoma nepogodan za koriscenje zato sto sadrzi veliku kolicinu informacije koje nam nisu potrebne.
-Umesto direktnog koriscenja, iz signala se prvo izvlace kljucne karakteristike.
-Signal delimo na kratke segmente koje zovemo prozori (eng. window).
-Svaki prozor je duzine od nekoliko milisekundi (obicno 10-30) pri cemu se susedni prozori delom preklapaju.
+Sirovi zvucni signal je veoma nepogodan za koriscenje zato sto sadrzi veliku kolicinu nepotrebnih informacija i šuma.
+Zbog toga se pre prosledjivanja akustickom modelu, signal prvo obradjuje tako da ostanu samo kljucne karakteristike i smanji sum i velicina reprezentacije.
 
-% kompaktno, bez redudantnosti
-Zatim na svaki prozor primenimo neku vrstu spektralne analize kojom se izdvajaju samo njegove najbitnije karakteristike.
+Signal delimo na kratke segmente koje zovemo okviri (eng. frame).
+Svaki od njih je fiksne duzine (obicno 10-30 milisekundi) sa kratkim preklapanjem susednim okvirima radi smanjenja naglih promena prilikom prelaska iz jednog u drugi.
+Pretpostavka je da je u svakom od okviru glas konstantan, to jest da se glasovi mogu menjati samo prelaskom iz jednog okvira u drugi.
+Na svaki od tih novodobijenih delova se zatim primenjuje neka vrsta spektralne analize kojom se izdvajaju samo njegove najbitnije karakteristike.
 Tacna reprezentacija koja se koristi varira u zavisnosti od modela, ali jedna od najpopularnijih je MFCC [?].
 
 \subsection{Akusticki model}
 % https://www.cs.cmu.edu/~roni/10601-slides/hmm-for-asr-whw.pdf
 % https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-345-automatic-speech-recognition-spring-2003/lecture-notes/lecture15.pdf
 % prepoznavanje fonema
-% pretpostavka da su okviri stacionarni (tj zvuk se ne menja u jednom okviru)
-Akusticki model je zaduzen da pretvori sekvencu prozora u sekvencu fonema. Foneme..
+Akusticki model je zaduzen da pretvori sekvencu okvira u sekvencu fonema. % objasniti foneme
 Za modelovanje svake foneme se koriste skriveni Markovljevi modeli (eng.~{\em Hidden Markov Models}) \cite{rabiner1989hmm}.
 Ti modeli se zatim nadovezuju da grade slova, reci...
 % model se trenira Baum-Welch algorithm or Viterbi training algorithm
@@ -209,7 +197,7 @@ On mapira niz fonema u odgovarajucu rec ili niz slova koja se tako izgovara.
 % sintaksicka i semanticka provera
 % primer
 Odredjuje najverovatniju kombinaciju reci
-% n-gram
+% n-gram model
 
 \subsection{Dekodiranje}
 U praksi je recnik prilicno veliki pa nije prakticno racunati verovatnocu za svaku kombinaciju reci u recenici.
@@ -226,6 +214,57 @@ Umesto toga se koristi beam search algoritam.
 
 % modeli zasnovani na paznji i CTC modeli
 \subsection{CTC model}
+
+Neka je ulazni zvuk uzorkovan u proizvoljnom broju jednakih vremenskih intervala,  gde je svaki od njih predstavljen vektorom realnih brojeva duzine $m$.  Neka je $L$ konacna azbuka labela (oznaka).  Cilj je napraviti preslikavanje $h$ koje slika proizvoljan zvucni signal u niz labela:
+
+\begin{equation}
+\label{eq:pres1}
+h: (\mathbb{R}^m)^* \rightarrow L^* 
+\end{equation}
+
+
+U praksi fiksiramo broj vremenskih trenutaka na neku vrednost $T$.  Iako je broj trenutaka fiksiran za zvucne signale,  nizovi labela ne moraju biti iste duzine za svaku ulaznu instancu, stoga jednu trening instancu predstavlja par $(\textbf{x}, \textbf{z})$ gde je $z$ vektor labela duzine najvise $T$.  Ako bismo test skup oznacili sa O, tada funkciju greske mozemo definisati na sledeci nacin:
+
+
+\begin{equation}
+\label{eq:LER}
+LER(h, O) = \frac{1}{|O|}\sum_{(\textbf{x}, \textbf{z}) \in O}\frac{ED(h(\textbf{x}), \textbf{z})}{\textbf{|z|}}
+\end{equation}
+
+
+$ED$ predstavlja edit distancu (minimalni broj izmena koji dovodi jedan niz karaktera do drugog, pri cemu dozvoljene izmene podrazumevaju brisanje,  supstituciju i umetanje karaktera).  Prethodna mera naziva se stopa greske labela (\textit{eng.  label error rate - LER}).  
+
+
+Formula \ref{eq:LER} jeste prirodna ocena greske za probleme koji za cilj imaju minimizaciju greske prevodjenja.
+
+\bigskip
+Koristeci sva prethodna razmatranja konstruisemo rekurentnu neuronsku mrezu koja na ulazu ima $mT$ ulaza,  dok se na izlazu dobija $T$ vektora dimenzija $L' = L \cup \{\epsilon\}$ pri cemu svaki predstavlja raspodelu verovatnoca oznaka za svaki trenutak prosirujuci azbuku blanko labelom $\epsilon$.
+
+\bigskip
+Neformalno receno,  prolaskom kroz izlazne softmax nizove dobijamo putanju $\pi \in (L')^T$ koja predstavlja jedan moguci odabir labela.  Ako $y_{\pi_t}^t$ predstavlja softmax ???? vrednost $t$-tog trenutka oznake $\pi_t$ tada verovatnocu odabira kompletne putanje dobijamo kao proizvod:
+
+$$p(\pi|x) = \prod_{t=1}^Ty_{\pi_t}^t$$
+
+U praksi uzorkovanje zvuka se vrsi u veoma sitnim vremenskim intervalima (oko 10ms). Stoga je pojava blanko ili dupliciranih oznaka veoma cesta.  Iz tog razloga uvodimo preslikavanje $\beta$ cija je uloga preciscavanje nizova labela uklanjanjem blanko oznaka i susednih duplikata.  
+
+$$\beta : (L')^T \rightarrow L^U,  U \leq T$$
+
+Primetimo da za jednu preciscenu putanju $l$ moze postojati vise mogucih izvornih putanja,  pa je verovatnoca njenog odabira jednaka sumi po svim izvornim putanjama.
+
+\begin{equation}
+\label{eq:beta}
+p(l | x) = \sum_{\pi \in \beta^{-1}(l)} p(\pi | x)
+\end{equation}
+
+Imajuci u vidu sve prethodno navedeno,  zadatak preslikavanja $h$ je odabir najverovatnije preciscene putanje za dati ulaz.
+
+\begin{equation}
+\label{eq:h_x}
+h(x) = \argmax_{l \in L^U} p(l | x)
+\end{equation}
+
+Najjednostavniji algoritam jeste pohlepni odabir najbolje oznake za svaki vremenski trenutak ponaosob.  Medjutim, ovakav pristup ne garantuje optimalnost.  Naravno,  postoje bolji algoritmi za resavanje datog problema. Isti nece biti obradjivani u ovom radu, ali se mogu naci u [].
+
 \subsection{modeli zasnovani na paznji}
 
 \section{Metrike za evaluaciju}
@@ -273,61 +312,6 @@ Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
 % U odeljku \ref{sec:naslov1} precizirani su osnovni pojmovi, dok su zaključci dati u odeljku \ref{sec:zakljucak}.
 % \end{primer}
 
-
-% \section{Slike i tabele}
-% \label{slike_i_tabele}
-
-% Slike i tabele treba da budu u svom okruženju, sa odgovarajućim naslovima, obeležene labelom da koje omogućava referenciranje. 
-
-% \begin{primer} Ovako se ubacuje slika. Obratiti pažnju da je dodato i 
-% \begin{verbatim}
-% \usepackage{graphicx}
-% \end{verbatim}
-
-% \begin{figure}[h!]
-% \begin{center}
-% \includegraphics[scale=0.75]{panda.jpg}
-% \end{center}
-% \caption{Pande}
-% \label{fig:pande}
-% \end{figure}
-
-% Na svaku sliku neophodno je referisati se negde u tekstu. Na primer, na slici \ref{fig:pande} prikazane su pande. 
-% \end{primer}
-
-% \begin{primer} I tabele treba da budu u svom okruženju, i na njih je neophodno referisati se u tekstu. Na primer, u tabeli \ref{tab:tabela1} su prikazana različita poravnanja u tabelama.
-
-% \begin{table}[h!]
-% \begin{center}
-% \caption{Razlčita poravnanja u okviru iste tabele ne treba koristiti jer su nepregledna.}
-% \begin{tabular}{|c|l|r|} \hline
-% centralno poravnanje& levo poravnanje& desno poravnanje\\ \hline
-% a &b&c\\ \hline
-% d &e&f\\ \hline
-% \end{tabular}
-% \label{tab:tabela1}
-% \end{center}
-% \end{table}
-
-% \end{primer}
-
-% \section{K\^{o}d i paket listings}
-% Za ubacivanje koda koristite paket \textbf{listings}:
-% \url{https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings}
-
-% \begin{primer}
-% Primer ubacivanja koda za programski jezik Python dat je kroz listing \ref{simple}. Za neki drugi programski jezik, treba podesiti odgvarajući programski jezik u okviru defnisanja stila.
-% \end{primer}
-% \begin{lstlisting}[caption={Primer ubacivanja koda u tekst},frame=single, label=simple]
-% # This program adds up integers in the command line
-% import sys
-% try:
-%     total = sum(int(arg) for arg in sys.argv[1:])
-%     print 'sum =', total
-% except ValueError:
-%     print 'Please supply integer arguments'
-% \end{lstlisting}
-
 \addcontentsline{toc}{section}{Literatura}
 \appendix
 \bibliography{seminarski} 
@@ -351,5 +335,18 @@ Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
   \hline
 \end{tabular}
 
+% \begin{table}[h!]
+% \begin{center}
+% \caption{Razlčita poravnanja u okviru iste tabele ne treba koristiti jer su nepregledna.}
+% \begin{tabular}{|c|l|r|} \hline
+% centralno poravnanje& levo poravnanje& desno poravnanje\\ \hline
+% a &b&c\\ \hline
+% d &e&f\\ \hline
+% \end{tabular}
+% \label{tab:tabela1}
+% \end{center}
+% \end{table}
+
 
 \end{document}
+
