@@ -1,0 +1,355 @@
+% !TEX encoding = UTF-8 Unicode
+\documentclass[a4paper]{article}
+
+\usepackage{color}
+\usepackage{url}
+\usepackage[T2A]{fontenc} % enable Cyrillic fonts
+\usepackage[utf8]{inputenc} % make weird characters work
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\usepackage[english,serbian]{babel}
+%\usepackage[english,serbianc]{babel} %ukljuciti babel sa ovim opcijama, umesto gornjim, ukoliko se koristi cirilica
+
+\usepackage[unicode]{hyperref}
+\hypersetup{colorlinks,citecolor=green,filecolor=green,linkcolor=blue,urlcolor=blue}
+
+\usepackage{listings}
+
+\usepackage{amsmath}
+
+% https://tex.stackexchange.com/questions/5223/command-for-argmin-or-argmax
+\DeclareMathOperator*{\argmax}{argmax}
+
+%\newtheorem{primer}{Пример}[section] %ćirilični primer
+\newtheorem{primer}{Primer}[section]
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ 
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
+  basicstyle=\scriptsize\ttfamily,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  firstnumber=1000,                % start line enumeration with line 1000
+  frame=single,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  morekeywords={*,...},            % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,	                   % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\begin{document}
+
+\title{Automatsko prepoznavanje govora\\ \small{Seminarski rad u okviru kursa\\Metodologija stručnog i naučnog rada\\Matematički fakultet}}
+
+\author{Vladimir Vuksanović, Aleksa Kojadinović, Lazar Čeliković\\kontakt email prvog, drugog, trećeg autora}
+
+%\date{9.~april 2015.}
+
+\maketitle
+
+\abstract{
+U ovom tekstu je ukratko prikazana osnovna forma seminarskog rada. Obratite pažnju da je pored ove .pdf datoteke, u prilogu i odgovarajuća .tex datoteka, kao i .bib datoteka korišćena za generisanje literature. Na prvoj strani seminarskog rada su naslov, apstrakt i sadržaj, i to sve mora da stane na prvu stranu! Kako bi Vaš seminarski zadovoljio standarde i očekivanja, koristite uputstva i materijale sa predavanja na temu pisanja seminarskih radova. Ovo je samo šablon koji se odnosi na fizički izgled seminarskog rada (šablon koji \emph{morate} da koristite!) kao i par tehničkih pomoćnih uputstava. Pročitajte tekst pažljivo jer on sadrži i važne informacije vezane za zahteve obima i karakteristika seminarskog rada.}
+
+\bigskip
+\textbf{Ključne reči:} prepoznavanje govora
+
+\tableofcontents
+
+\newpage
+
+\section{Uvod}
+\label{sec:uvod}
+
+% Performance Evaluation of Offline Speech Recognition on Edge Devices
+% Automatic speech recognition (ASR) is a process of converting speech signals to text. It
+% has a large number of real-world use cases, such as dictation, accessibility, voice assistants,
+% AR/VR applications, captioning of videos, podcasts, searching audio recordings, and
+% automated answering services, to name a few.
+Govor je za ljude najintuitivniji i prirodniji nacin komunikacije. Zbog toga je od samog nastanka kompjutera, nastala i ideja da koristimo isti nacin komunikacije da interagujemo sa njima.
+To bi znatno smanjilo potrebno predznanje za koriscenje kompjutera i ucnilio ga pristupacnijim vecem broju ljudi. Najveca prepreka ovim sistemima do skoro je bio kako sa velikom tacnosti prepoznati sta je korisnik rekao.
+Taj postupak se naziva automatsko prepoznavanje govora.
+
+\textbf{Automatsko prepoznavanje govora} (eng.~{\em Automatic Speech Recognition, ASR}) je proces pretvaranja zvučnog signala govora u sekvencu reči pomoću kompjutera.
+Neke od najznacajnijih primena ovih sistema su: pametni licni asistenti (Google Assistant\footnote{https://assistant.google.com/}, Apple Siri\footnote{https://www.apple.com/siri/},\dots), transkripcija snimaka, pretrazivanje audio sadrzaja i pristupacnost.
+% slika waveform u recenicu (Uday 8.1) ?
+
+Iako su istrazivanja na ovu temu pocela jos sredinom dvadesetog veka, popularnost je pocela da dobija tek u poslednjoj deceniji kada je uvodjenje dubokih neuronskih mreza drasticno povecalo performanse ovih sistema.
+Ta razlika je bila dovoljna da ucini ove sisteme prakticno primenljivim umesto nezgodnim za upotrebu zbog velikog broja gresaka.
+Jedan od najznacajnijih postignuca je ostvareno 2016. godine je kompanija Majkrosoft napravila sistem koji je ostvario iste rezultate kao ljudski ekperti na Switchboard skupu podataka \cite{switchboard}.
+% Human level switchboard
+% https://blogs.microsoft.com/ai/historic-achievement-microsoft-researchers-reach-human-parity-conversational-speech-recognition/
+% https://www.microsoft.com/en-us/research/blog/microsoft-researchers-achieve-new-conversational-speech-recognition-milestone/
+Za glavne uzroke ovog naglog poboljsanja se smatraju \cite{hannun2021history}:
+\begin{enumerate}
+  \item Sakupljanje velike kolicine tanskribovanih skupova podataka
+  \item Nagli porast u performansama grafickih procesorskih jedinica (GPU)
+  \item Poboljsanje algoritama za ucenje i arhitektura modela
+\end{enumerate}
+% The History of Speech Recognition to the Year 2030
+% 1) the curation of massive transcribed data sets,
+% 2) the rapid rate of progress in graphics processing units
+% 3) the improvement in the learning algorithms and model architectures.
+
+% Tema ovog rada je da priblizi citaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznacajnijim arhitekturama ovih sistema.
+% Tema ovog rada je da opise nacin rada modela za prepoznavanje govora.
+% izlistati poglavlja
+U nastavku cemo prvo navesti neke izazove koje treba da resimo da bi smo napravili dobar sistem za prepoznavanje govora, zatim cemo opisati nacin rada dva najpopularnija modela: statisticki i end-to-end i na kraju cemo predstaviti nacin za njihovu evaluaciju.
+
+\section{Izazovi}
+% https://www.youtube.com/watch?v=q67z7PTGRi8
+% A review...
+Prepoznavanje govora je veoma tezak zadatak zato sto je potrebno da radi podjednako dobro u razlicitim uslovima. %: okruzenje govornika, kvalitet mikrofona, karakteristike govora.
+% speaker independence
+Ideal kojem se tezi kod ovih sistema je nezavisnost od govornika (speaker independence).
+
+Neki od najvecih izazova su:
+% Improved Noisy Student Training for Automatic Speech Recognition
+\begin{itemize}
+  \item Mala kolicina podataka za trening - Za ostvarivanje dobrih rezultata, potrebno je sakupiti vise stotina sati labeliranih zvicnih snimaka koji treba da sadrze vise govornika. Ovako velike skupove je tesko naci, i jos teze verifikovati. Zbog toga se istrazuju alternativni nacini za treniranje kao st su samo-treniranje \cite{baevski2020wav2vec}, iterativno treniranje \cite{park2020noisy} ili treniranje koristeci kompjuterski generisan glas [google?]. % iterativno treniranje, wav2vec
+  \item Stil govora % (Izolovane reci, Povezane reci, Neprekidan govor, Spontani govor) % a review
+  \item Varijacije u brzini govora, jacini i frekvenciji glasa, starosti % spojiti sa sledecim (speaker dependence)
+  \item Varijacije u dijalektu i akcentima
+  \item Pozadinska buka
+  \item Velicina recnika
+\end{itemize}
+
+\section{Statisticki model}
+% Uday knjiga chap. 8
+% Dugo vremena statisticki modeli su bili dominantni modeli za prepoznavanje govora.
+Dugo vremena statisticki pristup je bio dominantan za sisteme za prepoznavanje govora.
+Cilj ovih sistema je da pronadju najverovatniju transkripciju za zadati signal.
+% Large Vocabulary Continuous Speech Recognition a Review
+Formalno, neka je $\hat{W}$ optimalan niz reci za transkripciju nekog zvucnog signala $X$. Cilj je optimizovati formulu \cite{kamath2019nlp}:
+\begin{equation*}
+  \hat{W} = \argmax_{W} P(W|X)
+\end{equation*}
+primenom Bajesove formule to mozemo da zapisemo kao:
+\begin{equation*}
+  \hat{W} = \argmax_{W} \frac{P(X|W) P(X)}{P(W)}
+\end{equation*}
+a kako je $P(X)$ konstantno za konkretan ulaz, mozemo da ga eliminisemo:
+\begin{equation*}
+  \hat{W} = \argmax_{W} P(X|W) P(W)
+\end{equation*}
+Ideja je da odvojeno optimizujemo obe prethodne velicine.
+$P(X|W)$ se zove akusticki model, a $P(W)$ se zove jezicki model.
+
+% slika modela
+% https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/_images/ASR.png
+Na slici \ref{fig:statistical_model} je prikazana cela struktura statistickog modela od zvucnog signala do transkripcije:
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[scale=0.4]{statistical_model.png}
+  \end{center}
+  \caption{Statisticki model}
+  \label{fig:statistical_model}
+\end{figure}
+
+U nastavku ce biti opisana svaka komponenta statistickog modela, njihova uloga i nacin rada.
+
+\subsection{Procesiranje zvucnog signala}
+% FFT, MFCC, Spectogrami, RNN, CNN, segmentacija
+% audio preprocesiranje, otklanjanje buke (moze da se trenira na buku)
+% problem je otkloniti drugog govornika
+% podela na okvire (frame)
+% Prvi korak prepoznavanju govora je obrada ulaznog signala.
+Sirovi zvucni signal je veoma nepogodan za koriscenje zato sto sadrzi veliku kolicinu informacije koje nam nisu potrebne.
+Umesto direktnog koriscenja, iz signala se prvo izvlace kljucne karakteristike.
+Signal delimo na kratke segmente koje zovemo prozori (eng. window).
+Svaki prozor je duzine od nekoliko milisekundi (obicno 10-30) pri cemu se susedni prozori delom preklapaju.
+
+% kompaktno, bez redudantnosti
+Zatim na svaki prozor primenimo neku vrstu spektralne analize kojom se izdvajaju samo njegove najbitnije karakteristike.
+Tacna reprezentacija koja se koristi varira u zavisnosti od modela, ali jedna od najpopularnijih je MFCC [?].
+
+\subsection{Akusticki model}
+% https://www.cs.cmu.edu/~roni/10601-slides/hmm-for-asr-whw.pdf
+% https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-345-automatic-speech-recognition-spring-2003/lecture-notes/lecture15.pdf
+% prepoznavanje fonema
+% pretpostavka da su okviri stacionarni (tj zvuk se ne menja u jednom okviru)
+Akusticki model je zaduzen da pretvori sekvencu prozora u sekvencu fonema. Foneme..
+Za modelovanje svake foneme se koriste skriveni Markovljevi modeli (eng.~{\em Hidden Markov Models}) \cite{rabiner1989hmm}.
+Ti modeli se zatim nadovezuju da grade slova, reci...
+% model se trenira Baum-Welch algorithm or Viterbi training algorithm
+% dinamicko programiranje
+
+\subsection{Model izgovora}
+U slucaju da zelimo da prepoznajemo samo malu kolicinu reci, prethodni model bi bio sasvim dovoljan pod uslovom da imamo dobar trening skup za te reci.
+Problem nastaje ako zelimo da prepoznamo vecu kolicinu reci, tada cemo za neku rec imati mozda samo par primera u celom skupu.
+To nije dovoljno da se istrenira model. 
+\begin{equation*}
+  P(X|W) = P(X|Q) \sum_{Q} P(Q|W)
+\end{equation*}
+$P(Q|W)$ zovemo model izgovora (eng.~{\em Pronunciation Model}).
+On mapira niz fonema u odgovarajucu rec ili niz slova koja se tako izgovara.
+% ovo definisu eksperti za tu oblast
+% CMUdict ~150_000 reci
+
+\subsection{Jezicki model}
+% sintaksicka i semanticka provera
+% primer
+Odredjuje najverovatniju kombinaciju reci
+% n-gram
+
+\subsection{Dekodiranje}
+U praksi je recnik prilicno veliki pa nije prakticno racunati verovatnocu za svaku kombinaciju reci u recenici.
+Umesto toga se koristi beam search algoritam.
+
+\section{End-to-end model}
+% prednosti u odnosu na HMM
+% nije potreban ekspert za jezik
+% lakse treniranje
+% mogu sami da zakljuce bolju reprezentaciju od MFCC (npr pomocu CNN)
+
+% mane u ondosu na HMM
+% vice broj podataka
+
+% modeli zasnovani na paznji i CTC modeli
+\subsection{CTC model}
+\subsection{modeli zasnovani na paznji}
+
+\section{Metrike za evaluaciju}
+Standardna mera za procenu kvaliteta sistema za prepoznavanje govora je stopa pogresnih reci (eng.~{\em Word Error Rate (WER)}).
+% https://en.wikipedia.org/wiki/Word_error_rate
+\begin{equation*}
+  WER = \frac{S + D + I}{N}
+\end{equation*}
+gde je $S$ broj zamenjenih reci, $D$ broj obrisanih reci, $I$ broj umetnutih reci, i $N$ ukupan broj reci u referentnoj recenici.
+Minimalna vrednost koju moze da dobije je 0, dok maksimalna vrednost moze da bude preko 1 (npr. veliki broj umetnutih reci).
+% dinamicko programiranje
+% Wagner-Fischer algorithm
+Stopa pogresnih reci se efikasno racuna dinamickim programiranjem, pomocu Vagner-Fiserovog algoritma (eng.)
+
+Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
+
+\section{Zaključak}
+\label{sec:zakljucak}
+
+% \section{Osnovna uputstva}
+% Vaš seminarski rad mora da sadrži najmanje jednu \textbf{sliku}, najmanje jednu \textbf{tabelu} i najmanje \textbf{sedam referenci} u spisku literature. Najmanje jedna slika treba da bude originalna i da predstavlja neke podatke koje ste Vi osmislili da treba da prezentujete u svom radu. Isto važi i za najmanje jednu tabelu. 	Od referenci, neophodno je imati bar jednu \textbf{knjigu}, bar jedan \textbf{naučni članak} iz odgovarajućeg časopisa i bar jednu adekvatnu \textbf{veb adresu}. 
+% \textbf{Dužina seminarskog rada treba da bude od 10 do 12 strana.} Svako prekoračenje ili potkoračenje biće kažnjeno sa odgovarajućim brojem poena. Eventualno, nakon strane 12, može se javiti samo tekst poglavlja \textbf{Dodatak} koji sadrži nekakav dodatni k\^{o}d, ali je svakako potrebno da rad može da se pročita i razume i bez čitanja tog dodatka. 
+
+% \section{Engleski termini i citiranje}	
+% \label{sec:termini_i_citiranje}
+
+% Na svakom mestu u tekstu naglasiti odakle tačno potiču informacije. Uz sve novouvedene termine u zagradi naglasiti od koje engleske reči termin potiče. 
+
+% Naredni primeri ilustruju način uvođenja enlegskih termina kao i citiranje.
+
+% \begin{primer}
+% Problem zaustavljanja (eng.~{\em halting problem}) je neodlučiv \cite{haltingproblem}.
+% \end{primer}
+
+% \begin{primer}
+% Za prevođenje programa napisanih u programskom jeziku C može se koristiti GCC kompajler \cite{gcc}.
+% \end{primer}
+
+% \begin{primer}
+%  Da bi se ispitivala ispravost softvera, najpre je potrebno precizno definisati njegovo ponašanje \cite{laski2009software}. 
+% \end{primer}
+
+% Broj naslova i podnaslova je proizvoljan. Neophodni su samo Uvod i Zaključak. Na poglavlja unutar teksta referisati se po potrebi. 
+% \begin{primer}
+% U odeljku \ref{sec:naslov1} precizirani su osnovni pojmovi, dok su zaključci dati u odeljku \ref{sec:zakljucak}.
+% \end{primer}
+
+
+% \section{Slike i tabele}
+% \label{slike_i_tabele}
+
+% Slike i tabele treba da budu u svom okruženju, sa odgovarajućim naslovima, obeležene labelom da koje omogućava referenciranje. 
+
+% \begin{primer} Ovako se ubacuje slika. Obratiti pažnju da je dodato i 
+% \begin{verbatim}
+% \usepackage{graphicx}
+% \end{verbatim}
+
+% \begin{figure}[h!]
+% \begin{center}
+% \includegraphics[scale=0.75]{panda.jpg}
+% \end{center}
+% \caption{Pande}
+% \label{fig:pande}
+% \end{figure}
+
+% Na svaku sliku neophodno je referisati se negde u tekstu. Na primer, na slici \ref{fig:pande} prikazane su pande. 
+% \end{primer}
+
+% \begin{primer} I tabele treba da budu u svom okruženju, i na njih je neophodno referisati se u tekstu. Na primer, u tabeli \ref{tab:tabela1} su prikazana različita poravnanja u tabelama.
+
+% \begin{table}[h!]
+% \begin{center}
+% \caption{Razlčita poravnanja u okviru iste tabele ne treba koristiti jer su nepregledna.}
+% \begin{tabular}{|c|l|r|} \hline
+% centralno poravnanje& levo poravnanje& desno poravnanje\\ \hline
+% a &b&c\\ \hline
+% d &e&f\\ \hline
+% \end{tabular}
+% \label{tab:tabela1}
+% \end{center}
+% \end{table}
+
+% \end{primer}
+
+% \section{K\^{o}d i paket listings}
+% Za ubacivanje koda koristite paket \textbf{listings}:
+% \url{https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings}
+
+% \begin{primer}
+% Primer ubacivanja koda za programski jezik Python dat je kroz listing \ref{simple}. Za neki drugi programski jezik, treba podesiti odgvarajući programski jezik u okviru defnisanja stila.
+% \end{primer}
+% \begin{lstlisting}[caption={Primer ubacivanja koda u tekst},frame=single, label=simple]
+% # This program adds up integers in the command line
+% import sys
+% try:
+%     total = sum(int(arg) for arg in sys.argv[1:])
+%     print 'sum =', total
+% except ValueError:
+%     print 'Please supply integer arguments'
+% \end{lstlisting}
+
+\addcontentsline{toc}{section}{Literatura}
+\appendix
+\bibliography{seminarski} 
+% \bibliographystyle{plain}
+\bibliographystyle{ieeetr}
+
+\appendix
+
+% dodatak: pregled skupa podataka za trening
+% https://github.com/double22a/speech_dataset
+% CommonVoice - https://commonvoice.mozilla.org/en/datasets
+% TIMIT - https://catalog.ldc.upenn.edu/LDC93S1
+% LibriSpeech - https://openslr.org/12/
+\section{Pregled skupova podataka}
+\begin{tabular}{|c|c|c|}
+  \hline
+  TIMIT & cell2 & cell3 \\ 
+  SwitchBoard & cell5 & cell6 \\ 
+  LibriSpeech & cell8 & cell9 \\ 
+  CommonVoice & a & a \\
+  \hline
+\end{tabular}
+
+
+\end{document}
