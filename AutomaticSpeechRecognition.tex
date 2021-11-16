@@ -92,7 +92,7 @@ Neke od najznacajnijih primena ovih sistema su: pametni licni asistenti (Google 
 
 Iako su istrazivanja na ovu temu pocela jos sredinom dvadesetog veka, popularnost je pocela da dobija tek u poslednjoj deceniji kada je uvodjenje dubokih neuronskih mreza drasticno povecalo performanse ovih sistema.
 Ta razlika je bila dovoljna da ucini ove sisteme prakticno primenljivim umesto nezgodnim za upotrebu zbog velikog broja gresaka.
-Jedan od najznacajnijih postignuca je ostvareno 2016. godine je kompanija Majkrosoft napravila sistem koji je ostvario iste rezultate kao ljudski ekperti na Switchboard skupu podataka \cite{switchboard}.
+Jedan od najznacajnijih postignuca je ostvareno 2016. godine je kompanija Majkrosoft napravila sistem koji je ostvario iste rezultate kao ljudski eksperti na transkripciji Switchboard skupa podataka \cite{switchboard}.
 % Human level switchboard
 % https://blogs.microsoft.com/ai/historic-achievement-microsoft-researchers-reach-human-parity-conversational-speech-recognition/
 % https://www.microsoft.com/en-us/research/blog/microsoft-researchers-achieve-new-conversational-speech-recognition-milestone/
@@ -112,19 +112,42 @@ U nastavku cemo prvo navesti neke izazove koje treba da resimo da bi smo napravi
 
 \section{Izazovi}
 % https://www.youtube.com/watch?v=q67z7PTGRi8
-Prepoznavanje govora je veoma tezak zadatak zato sto je potrebno da radi podjednako dobro u razlicitim uslovima. % okruzenje govornika, kvalitet mikrofona, karakteristike govora.
-% speaker independence
-Ideal kojem se tezi kod ovih sistema je nezavisnost od govornika (speaker independence).
-
+Prepoznavanje govora je veoma tezak zadatak zato sto je potrebno da radi podjednako dobro u veoma razlicitim uslovima.
 Neki od najvecih izazova su:
-% Improved Noisy Student Training for Automatic Speech Recognition
 \begin{itemize}
-  \item Mala kolicina podataka za trening - Za ostvarivanje dobrih rezultata, potrebno je sakupiti vise stotina sati labeliranih zvicnih snimaka koji treba da sadrze vise govornika. Ovako velike skupove je tesko naci, i jos teze verifikovati. Zbog toga se istrazuju alternativni nacini za treniranje kao st su samo-treniranje \cite{baevski2020wav2vec}, iterativno treniranje \cite{park2020noisy} ili treniranje koristeci kompjuterski generisan glas [google?]. % iterativno treniranje, wav2vec
-  \item Stil govora % (Izolovane reci, Povezane reci, Neprekidan govor, Spontani govor) % a review
-  \item Varijacije u brzini govora, jacini i frekvenciji glasa, starosti % spojiti sa sledecim (speaker dependence)
-  \item Varijacije u dijalektu i akcentima
-  \item Pozadinska buka
-  \item Velicina recnika
+  \item \textbf{Mala kolicina podataka za trening} --- 
+  Za ostvarivanje dobrih rezultata potrebno je sakupiti vise stotina ili cak hiljada sati labeliranih zvucnih snimaka koji treba da sadrze vise govornika razlicitog pola i starosti, koji govore razlicitim akcentima. 
+  Dok u skorije vreme jeste nastao porast u kolicini dostupnih podataka, veliki problem jos uvek predstavlja reprezentativnost razlicitih varijacija u govoru i nedostatak podataka za jezike sa manjim brojem govornika. 
+  Zbog toga se istrazuju alternativni nacini za treniranje kao sto su samo-treniranje (eng.~{\em self-training}) \cite{baevski2020wav2vec}, iterativno treniranje \cite{park2020noisy} ili treniranje koristeci kompjuterski generisan glas \cite{hannun2014deep}. 
+  U dodatku \ref{sec:skupovi} se moze naci tabela sa pregledom nekih od najpopularnijih trening skupova na engleskom jeziku.
+  
+  \item \textbf{Stil govora} --- 
+  Postoje razliciti sistemi u zavisnosti od toga koji tip govora mogu da prepoznaju \cite{anusuya2010speech}. Tipovi govora poredjani po tezini propoznavanja su: 
+  \begin{enumerate}
+    \item Izolovane reci --- reci su razdvojene dugim periodima tisine
+    \item Povezane reci --- reci su razdvojene kratkim pauzama
+    \item Neprekidan govor --- uvezbani govor, citanje ili diktiranje
+    \item Spontan govor --- neuvezbani, prirodni govor 
+  \end{enumerate}
+  Prve implementacije prepoznavanja govora su radile na nivou izolovanih reci i koristile su se za prepoznavanje odredjenih komandi ili cifara.
+  Danas se najvise truda ulaze u poboljsanje neprekidnog i spontanog govora.
+
+  \item \textbf{Karakteristike govornika} ---
+  Svaki covek ima razlicitu boju glasa i govori razlicitom brzinom. Cak i starost osobe i jacina govora bitno uticu na frekvenciju glasa.
+  Poseban problem pravi postojanje razlicitih dijalekata i akcenata koji mogu da imaju potpuno razlicite nacine za izgovaranje istih reci.
+  Jedan nacin za resavanje ovog problema je treniranje sistema na glasu govornika koji ce ga koristiti.
+  To su sistemi zavisni od korisnika (eng.~{\em speaker dependent}) i koriste se u slucajevima da samo jedno osoba treba da ih koristi.
+  Sa druge strane postoje sistemi nezavisni od korisnika (eng.~{\em speaker independent}) koji treba da rade podjednako dobro za sve govornike.
+  
+  \item \textbf{Okruzenje govornika} --- 
+  Ovi sistemi ce retko biti korisceni u potpuno tihim prostorijama sa profesionalnom opremom za snimanje, zbog toga treba da budu tolerantni na razlicite vrste pozadinske buke ili kvaliteta mikrofona (koliko je to moguce). 
+  Neke vrste sumova je moguce otkloniti analizom zvuka ili naprednijim metodama \cite{xu2015enhancement}, ali jedan od najvecih problema predstavlja postojanje drugih govornika u okolini.
+  Te signale je cesto tesko razlikovati od glasa primarnig govornika, i samim tim tesko ukloniti.
+  
+  \item \textbf{Velicina recnika} --- 
+  Povecanje broja reci koje model moze da prepozna takodje povecava njegovu slozenost i otezava treniranje, ali se time dobija na tacnosti. 
+  Zbog toga je potrebno naci dobar kompromis izmedju velicine recnika i slozenosti modela. 
+  U slucajevima kada je potrebno pouzdano prepoznati samo neki skup komandi koriste se mali recnici i oni su cesto veoma pouzdani, ali za prepoznavanje opsteg govora danasnji sistemi su trenirani na skupu od oko 50.000-100.000 reci.
 \end{itemize}
 
 \section{Statisticki model}
@@ -138,7 +161,7 @@ Formalno, neka je $\hat{W}$ optimalan niz reci za transkripciju nekog zvucnog si
 \end{equation*}
 primenom Bajesove formule to mozemo da zapisemo kao:
 \begin{equation*}
-  \hat{W} = \argmax_{W} \frac{P(X|W) P(X)}{P(W)}
+  \hat{W} = \argmax_{W} \frac{P(X|W) P(W)}{P(X)}
 \end{equation*}
 a kako je $P(X)$ konstantno za konkretan ulaz, mozemo da ga eliminisemo:
 \begin{equation*}
@@ -326,6 +349,8 @@ Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
 % TIMIT - https://catalog.ldc.upenn.edu/LDC93S1
 % LibriSpeech - https://openslr.org/12/
 \section{Pregled skupova podataka}
+\label{sec:skupovi}
+
 \begin{tabular}{|c|c|c|}
   \hline
   TIMIT & cell2 & cell3 \\ 
