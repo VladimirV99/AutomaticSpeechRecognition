@@ -153,7 +153,7 @@ Neki od najvecih izazova su:
 \section{Statisticki model}
 % Uday knjiga chap. 8
 Dugo vremena statisticki pristup je bio dominantan za sisteme za prepoznavanje govora.
-Cilj ovih sistema je da pronadju najverovatniju transkripciju za zadati signal.
+Cilj ovih sistema je da pronadju najverovatniju transkripciju za zadati ulaz.
 % Large Vocabulary Continuous Speech Recognition a Review
 Formalno, neka je $\hat{W}$ optimalan niz reci za transkripciju nekog zvucnog signala $X$. Cilj je optimizovati formulu \cite{kamath2019nlp}:
 \begin{equation*}
@@ -164,13 +164,28 @@ primenom Bajesove formule to mozemo da zapisemo kao:
   \hat{W} = \argmax_{W} \frac{P(X|W) P(W)}{P(X)}
 \end{equation*}
 a kako je $P(X)$ konstantno za konkretan ulaz, mozemo da ga eliminisemo:
-\begin{equation*}
+\begin{equation}
+  \label{eq:stat1}
   \hat{W} = \argmax_{W} P(X|W) P(W)
-\end{equation*}
-Prvi deo, $P(X|W)$, racuna akusticki model, a drugi, $P(W)$, racuna jezicki model.
+\end{equation}
+Prvi deo, $P(X|W)$, racuna \textbf{akusticki model} (eng.~{\em acoustic model}), a drugi, $P(W)$, racuna \textbf{jezicki model} (eng.~{\em language model}).
 Ideja je da odvojeno optimizujemo obe prethodne velicine i ocekujemo da ce se tako maksimizirati ukupna verovatnoca.
-U praksi, $P(X|W)$ je tesko precizno odrediti na nivou reci zbog velikih varijacija u izgovoru, pa se cesce odredjuje na nivou glasova ili fonema.
-Zbog toga se dodatno uvodi i model izgovora (eng.) koji kombinuje te manje jedinice u reci. 
+
+Najprirodniji nacin za racunanje $P(X|W)$ bi bio na nivou reci zato sto krajnji izlaz svakako treba da bude niz reci.
+Problem sa tim je sto postoji veliki broj varijacija u izgovoru reci, a nedovoljan broj primera za svaki od njih u trening skupu.
+Umesto toga, reci se dele na manje delove kao sto su foneme.
+\textbf{Foneme} su najmanje jezicke jedinice cijom kombinacijom se dobijaju reci. One postoje samo kao apstraktna ideja a njihova fizicka realizacija se zove glas.
+
+Znaci ako je $S$ niz fonema, $P(X|W)$ iz formule \ref{eq:stat1} se razlaze i dobija se:
+\begin{equation*}
+  \hat{W} = \argmax_{W} \sum_{S} P(X,S|W) P(W)
+\end{equation*}
+sto se moze aproksimirati kao:
+\begin{equation}
+  \label{eq:stat2}
+  \hat{W} \approx \argmax_{W,S} P(X|S) P(S|W) P(W)
+\end{equation}
+gde se $P(S|W)$ zove \textbf{model izgovora} (eng.~{\em pronunciation model}). 
 
 % slika modela
 % https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/_images/ASR.png
@@ -182,49 +197,102 @@ Na slici \ref{fig:statistical_model} je prikazana cela struktura statistickog mo
   \caption{Statisticki model}
   \label{fig:statistical_model}
 \end{figure}
+
 U nastavku ce biti opisana svaka od pomenutih komponenti, njena uloga i nacin rada.
 
 \subsection{Procesiranje zvucnog signala}
 Sirovi zvucni signal je veoma nepogodan za koriscenje zato sto sadrzi veliku kolicinu nepotrebnih informacija i šuma.
 Zbog toga se pre prosledjivanja akustickom modelu, signal prvo obradjuje tako da ostanu samo kljucne karakteristike i smanji sum i velicina reprezentacije.
 
-Signal delimo na kratke segmente koje zovemo okviri (eng. frame).
+Signal delimo na kratke segmente koje zovemo \textbf{okviri} (eng.~{\em frame}).
 Svaki od njih je fiksne duzine (obicno 10-30 milisekundi) sa kratkim preklapanjem susednim okvirima radi smanjenja naglih promena prilikom prelaska iz jednog u drugi.
 Pretpostavka je da je u svakom od okviru glas konstantan, to jest da se glasovi mogu menjati samo prelaskom iz jednog okvira u drugi.
-Na svaki od tih novodobijenih delova se zatim primenjuje neka vrsta spektralne analize kojom se izdvajaju samo njegove najbitnije karakteristike.
+Na svaki od tih novodobijenih delova se zatim primenjuje neka vrsta spektralne analize najcesce zasnovana na Furijeovoj transformaciji kojom se izdvajaju samo njegove najbitnije karakteristike.
+Izdvajanje karakteristika pokusava da oponasa ljudski slusni sistem filtrirajuci odredjene frekvencije i skalirajuci ih onako kako bi ih covek cuo.
 Tacna reprezentacija koja se koristi varira u zavisnosti od modela, ali jedna od najpopularnijih je MFCC [?].
 
 \subsection{Akusticki model}
 % https://www.cs.cmu.edu/~roni/10601-slides/hmm-for-asr-whw.pdf
 % https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-345-automatic-speech-recognition-spring-2003/lecture-notes/lecture15.pdf
-% prepoznavanje fonema
-Akusticki model je zaduzen da pretvori sekvencu okvira u sekvencu fonema. % objasniti foneme
-Za modelovanje svake foneme se koriste skriveni Markovljevi modeli (eng.~{\em Hidden Markov Models}) \cite{rabiner1989hmm}.
-Ti modeli se zatim nadovezuju da grade slova, reci...
-% model se trenira Baum-Welch algorithm or Viterbi training algorithm
-% dinamicko programiranje
+Akusticki model je zaduzen da pretvori obradjeni zvucni signal u sekvencu fonema. 
+Za resavanje ovog problema uvescemo teoriju o skrivenim Markovljevim modelima \cite{rabiner1989hmm}.
+
+% https://cs229.stanford.edu/section/cs229-hmm.pdf
+Neka je $S = \{s_1, s_2, \dots, s_n\}$ skup stanja, $A$ matrica dimenzije $n \times n$ gde $A_{ij}$ predstavlja verovatnocu prelaska iz stanja $s_i$ u $s_j$ tako da vazi $A_{ij} > 0$ i $\sum_{j=1}^{n} A_{ij} = 1$.
+U diskretnim trenucima vrsi se promena trenutnog stanja na osnovu verovatnoca zadatih matricom $A$. 
+Specijalno, pocetno stanje moze da se izabere nasumicno iz neke raspodele.
+Za svaki trenutak $t = 1,2,\dots,T$, oznacicemo stanje u tom trenutku sa $q_t$.
+Ukoliko dodatno vazi da verovatnoca prelaska u sledece stanje vazi samo od trenutnog stanja: 
+$$P(q_t = S_i | q_{t-1} = S_j, q_{t-2} = S_k, \dots) = P(q_t = S_i | q_{t-1} = S_j)$$
+i da se verovatnoce prelaska iz jednog stanja u drugo ne menjaju:
+$$P(q_t = S_i | q_{t-1} = S_j) = P(q_2 = S_i | q_1 = S_j) \forall t=2..T$$
+onda se prethodno opisan sistem naziva \textbf{Markovljev model}.
+
+Prosirimo sada ovaj sistem dalje. Neka vaze sve prethodno uvedene oznake i dodatno neka je $V = \{v_1, v_2, \dots, v_m\}$ skup mogucih obzervacija za svako stanje i $B$ matrica dimenzije $n \times m$ gde $B_{jk}$ predstavlja verovatnocu obzervacije $v_k$ u stanju $s_j$.
+Sada u svakom trenutku $t$ osim promene stanja dobijamo i novu obzervaciju $x_t$ na osnovu verovatnoca zadatih matricom $B$.
+Razlika sada je sto novo stanje ostaje skriveno nego se samo vidi obzervacija u svakom trenutku.
+Ako jos vazi da je svaka obzervacija zavisi samo od trenutnog stanja a ne od prethodnih obzervacija:
+$$P(x_t = v_i | x_{t-1}, \dots, x_1, q_t, \dots, q_1) = P(x_t = v_i | q_t)$$
+tada se ovaj sistem se naziva \textbf{skriveni Markovljev model}.
+
+Konkretno za prepoznavanje govora koristicemo ove modele da opisemo svaku fonemu.
+Svaki od njih ce se sastojati od nekog zadatog broja stanja pri cemu ce obzervacije govoriti da li je ta fonema trenutno primecena.
+Kada imamo model za svaku fonemu, njih je moguce kombinovati da se dobije model za rec, koji se dalje kombinuju u model za recenicu.
+Sada jos samo treba odrediti raspodele verovatnoca za obzervacije fonema. 
+To se radi treniranjem modela nad skupom podataka uz pomoc Baum-Welch algoritma zasnovanog na dinamickom programiranju.
+
+Istrenirani model posle moze da predvidi najverovatniji niz fonema koristeci Vetrebi algoritam za pretragu.
 
 \subsection{Model izgovora}
-U slucaju da zelimo da prepoznajemo samo malu kolicinu reci, prethodni model bi bio sasvim dovoljan pod uslovom da imamo dobar trening skup za te reci.
-Problem nastaje ako zelimo da prepoznamo vecu kolicinu reci, tada cemo za neku rec imati mozda samo par primera u celom skupu.
-To nije dovoljno da se istrenira model. 
-\begin{equation*}
-  P(X|W) = P(X|Q) \sum_{Q} P(Q|W)
-\end{equation*}
-$P(Q|W)$ zovemo model izgovora (eng.~{\em Pronunciation Model}).
-On mapira niz fonema u odgovarajucu rec ili niz slova koja se tako izgovara.
-% ovo definisu eksperti za tu oblast
-% CMUdict ~150_000 reci
+U prethodnoj sekciji je receno da se modeli fonema spajaju u modele reci, ali nije napomenuto tacno kako se to radi.
+To je bas zadatak modela izgovora.
+On je u sustini veliki recnik koji mapira reci u niz fonema kako se one izgovaraju.
+Ako postoji vise varijacija izgovora one se smatraju kao razlicite stavke u recniku.
+Sada ako je poznato ovo preslikavanje lako se moze za datu recenicu konstruisati skriveni Markovljev model spajanjem modela odgovarajucih reci za koje je sada poznato presikavanje u foneme.
+
+Prirodno sledece pitanje je kako se odredjuju ova preslikavanja. 
+Ovo je zapravo jedan od najtezih zadataka za modeliranje zato se on ne uci na skupu podataka nego ga konstruisu eksperti iz tog domena.
+Za svaku rec, neko je morao da zapise na koji nacin se izgovara uzimajuci u obzir da potencijalno postoji vise izgovora.
+Sa obzirom da danasnji sistemi razlikuju oko 100.000 reci, ovo nimalo nije lak posao.
+
+Na engleskom jeziku, jedan od najpoznatijih recnika izgovora je CMUdict \footnote{http://www.speech.cs.cmu.edu/cgi-bin/cmudict} od Carnegie Mellon univerziteta koji sadrzi preko 134.000 reci.
 
 \subsection{Jezicki model}
-% sintaksicka i semanticka provera
+Povratkom na formulu \ref{eq:stat1}, jezicki model dodeljuje verovatnocu pojavljivanja $P(W)$ svakoj mogucoj sekvenci reci $W$.
+Ovde se uzima u obzir relativna ucestalost reci, verovatnoca da se reci nadju jedna za drugom, i mogu da se vrse dodatne sintaksne i semanticke provere.
+Postoje recenice koje zvuce slicno ali nemaju sve semanticko znacenje.
+Tada se od njih bira ona koja ima najvise smisla.
 % primer
-Odredjuje najverovatniju kombinaciju reci
-% n-gram model
+
+Kako $P(W)$ ne zavisi od zvucnog signala, moze se odvojeno trenirati na samo tekstualnom skupu podataka kojih postoji dosta vise i imaju veci broj primera od skupova sa transkribovanim snimcima.
+U nekim slucajevima trenirana raspodela se moze promeniti u zavisnosti od korisnika (npr. pametni asistenti prepoznaju kontakte na korisnikovom telefonu).
+
+Najvesci vid implementacije ovog modela je pomocu n-grama.
+Neka se $W$ razdvaja na reci $W = \{w_1, w_2, \dots, w_m\}$ i neka je $n$ duzina n-grama.
+To znaci da pri racunanju verovatnoce pojavljivanja neke reci u obzir uzimamo samo $n-1$ njenih prethodnika a za ostale pretpostavljamo da ne uticu.
+Tada se $P(W)$ moze predstaviti kao:
+\begin{equation*}
+  P(W) = \prod_{i=1}^{m} P(w_i | w_1,\dots,w_{i-1}) = \prod_{i=1}^{m} P(w_i | w_{i-n+1},\dots,w_{i-1})
+\end{equation*}
+ako sa $C(x)$ oznacimo broj pojavljivanja sekvence $x$ u trening skupu tada se verovatnoca odredjene reci moze proceniti kao udeo pojavljivanja neke sekvence u broju pojavljivanja njenog prefiksa:
+\begin{equation*}
+  P(w_i | w_{i-n+1},\dots,w_{i-1}) = \frac{C(w_{i-n+1},\dots,w_i)}{C(w_{i-n+1},\dots,w_{i-1})}
+\end{equation*}
+Radi jednostavne implementacije na pocetak $W$ se dodaje $n-1$ "prazna" rec.
+
+Sledeci problem je kako odrediti broj $n$.
+On ne sme da bude preveliki zato sto se time smanjuje sansa da se neka kombinacija reci te duzine uopste nasla u trening skupu.
+Cak i za male vrednosti moguce je da se neka sekvenca nije ranije videla. 
+Taj problem se resava smanjenjem $n$ ukoliko ne postoji ta sekvenca duzine $n$ pa koriscenjem te verovatoce ili nekim postupkov ugladjivanja.
 
 \subsection{Dekodiranje}
-U praksi je recnik prilicno veliki pa nije prakticno racunati verovatnocu za svaku kombinaciju reci u recenici.
-Umesto toga se koristi beam search algoritam.
+Konstrukcijom svih prethodno opisanih komponenti i njihovim treniranjem, model je gotov i spreman za upotrebu.
+Jedino sto ostaje je pretraziti prostor dopustivih recenica da se pronadje ona koja najvise odgovara glasovnom signalu.
+U praksi, taj prostor je veoma veliki i njegova pretraga je eksponencijalne slozenosti (svaka moguca kombinacija reci u recenici) stoga nije izvodljivo traziti egzaktno resenje.
+Umesto toga se koristi heuristicki beam search algoritam. Ideja je da se resenje gradi iterativno i u svakom trenutku umesto testiranja svih mogucih puteva biramo $b$ najverovatnijih puteva.
+Parametar $b$ se bira tako da balansira velicinu prostora za pretrazivanje i vreme potrebno za njegov obilazak.
+Algoritam je dakle sledeci: odredimo verovatnocu za svaku rec da bude prva pa od njih izaberemo $b$ najverovatnijih. U sledecem koraku svaki od tih $b$ reci produzujemo sledecom i od njih ponovo biramo $k$ najverovatnijih.
+Ovaj postupak se ponavlja sve dok ne dodjemo do kraja recenice i ona predstavlja konacnu transkripciju govora.
 
 \section{End-to-end model}
 % prednosti u odnosu na HMM
@@ -348,30 +416,23 @@ Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
 % CommonVoice - https://commonvoice.mozilla.org/en/datasets
 % TIMIT - https://catalog.ldc.upenn.edu/LDC93S1
 % LibriSpeech - https://openslr.org/12/
-\section{Pregled skupova podataka}
+\section{Dodatak: Pregled skupova podataka}
 \label{sec:skupovi}
 
-\begin{tabular}{|c|c|c|}
-  \hline
-  TIMIT & cell2 & cell3 \\ 
-  SwitchBoard & cell5 & cell6 \\ 
-  LibriSpeech & cell8 & cell9 \\ 
-  CommonVoice & a & a \\
-  \hline
-\end{tabular}
-
-% \begin{table}[h!]
-% \begin{center}
-% \caption{Razlčita poravnanja u okviru iste tabele ne treba koristiti jer su nepregledna.}
-% \begin{tabular}{|c|l|r|} \hline
-% centralno poravnanje& levo poravnanje& desno poravnanje\\ \hline
-% a &b&c\\ \hline
-% d &e&f\\ \hline
-% \end{tabular}
-% \label{tab:tabela1}
-% \end{center}
-% \end{table}
-
+\begin{table}[h!]
+\begin{center}
+  % \caption{Razlčita poravnanja u okviru iste tabele ne treba koristiti jer su nepregledna.}
+  \begin{tabular}{|c|c|c|}
+    \hline
+    TIMIT & cell2 & cell3 \\ 
+    SwitchBoard & cell5 & cell6 \\ 
+    LibriSpeech & cell8 & cell9 \\ 
+    CommonVoice & a & a \\
+    \hline
+  \end{tabular}
+  % \label{tab:tabela1}
+\end{center}
+\end{table}
 
 \end{document}
 
