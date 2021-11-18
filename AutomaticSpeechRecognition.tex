@@ -68,9 +68,7 @@
 
 \maketitle
 
-\abstract{
-U ovom tekstu je ukratko prikazana osnovna forma seminarskog rada. Obratite pažnju da je pored ove .pdf datoteke, u prilogu i odgovarajuća .tex datoteka, kao i .bib datoteka korišćena za generisanje literature. Na prvoj strani seminarskog rada su naslov, apstrakt i sadržaj, i to sve mora da stane na prvu stranu! Kako bi Vaš seminarski zadovoljio standarde i očekivanja, koristite uputstva i materijale sa predavanja na temu pisanja seminarskih radova. Ovo je samo šablon koji se odnosi na fizički izgled seminarskog rada (šablon koji \emph{morate} da koristite!) kao i par tehničkih pomoćnih uputstava. Pročitajte tekst pažljivo jer on sadrži i važne informacije vezane za zahteve obima i karakteristika seminarskog rada.}
-% Tema ovog rada je da priblizi citaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznacajnijim arhitekturama ovih sistema.
+\abstract{ Tema ovog rada je da priblizi citaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznacajnijim arhitekturama ovih sistema.  U prva dva poglavlja bavimo se definisanjem osnovnih pojmova,  kratkim pregledom istorije i otezavajucim faktorima.  Trece i cetvrto poglavlje prikazuje dve razlicite metodologije prepoznavanja govora i relevantne modele.  Peto poglavlje opisuje nacin evaluacije prethodno navedenih kao i drugih modela.}
 
 \bigskip
 \textbf{Ključne reči:} prepoznavanje govora
@@ -298,7 +296,7 @@ Parametar $b$ se bira tako da balansira velicinu prostora za pretrazivanje i vre
 Algoritam je dakle sledeci: odredimo verovatnocu za svaku rec da bude prva pa od njih izaberemo $b$ najverovatnijih. U sledecem koraku svaki od tih $b$ reci produzujemo sledecom i od njih ponovo biramo $k$ najverovatnijih.
 Ovaj postupak se ponavlja sve dok ne dodjemo do kraja recenice i ona predstavlja konacnu transkripciju govora.
 
-\section{End-to-end model}
+\section{End-to-end modeli}
 \label{sec:e2e}
 % prednosti u odnosu na HMM
 % nije potreban ekspert za jezik
@@ -309,7 +307,11 @@ Ovaj postupak se ponavlja sve dok ne dodjemo do kraja recenice i ona predstavlja
 % vice broj podataka
 
 % modeli zasnovani na paznji i CTC modeli
+
+Za razliku od statistickog modela koji proces prepoznavanja govora deli u vise slozenijih celina, end-to-end modeli su po strukturi prostiji. Bave se direktnim prevodjenjem ulaznog zvucnog signala u niz grafema, karatera ili reci.  U nastavku prikazujemo dva najreprezentativnija modela: CTC model \cite{graves2006ctc} i LAS model \cite{chan2015las} \cite{chorowski2015attentionbased}
+
 \subsection{CTC model}
+\label{sec:ctc}
 
 Neka je ulazni zvuk uzorkovan u proizvoljnom broju jednakih vremenskih intervala,  gde je svaki od njih predstavljen vektorom realnih brojeva duzine $m$.  Neka je $L$ konacna azbuka labela (oznaka).  Cilj je napraviti preslikavanje $h$ koje slika proizvoljan zvucni signal u niz labela:
 
@@ -337,7 +339,7 @@ Formula \ref{eq:LER} jeste prirodna ocena greske za probleme koji za cilj imaju 
 Koristeci sva prethodna razmatranja konstruisemo rekurentnu neuronsku mrezu koja na ulazu ima $mT$ ulaza,  dok se na izlazu dobija $T$ vektora dimenzija $L' = L \cup \{\epsilon\}$ pri cemu svaki predstavlja raspodelu verovatnoca oznaka za svaki trenutak prosirujuci azbuku blanko labelom $\epsilon$.
 
 \bigskip
-Neformalno receno,  prolaskom kroz izlazne softmax nizove dobijamo putanju $\pi \in (L')^T$ koja predstavlja jedan moguci odabir labela.  Ako $y_{\pi_t}^t$ predstavlja softmax ???? vrednost $t$-tog trenutka oznake $\pi_t$ tada verovatnocu odabira kompletne putanje dobijamo kao proizvod:
+Neformalno receno,  prolaskom kroz izlazne softmax nizove dobijamo putanju $\pi \in (L')^T$ koja predstavlja jedan moguci odabir labela.  Ako $y_{\pi_t}^t$ predstavlja softmax vrednost $t$-tog trenutka oznake $\pi_t$ tada verovatnocu odabira kompletne putanje dobijamo kao proizvod:
 
 $$p(\pi|x) = \prod_{t=1}^Ty_{\pi_t}^t$$
 
@@ -369,11 +371,8 @@ Ovu grupu modela analiziramo na osnovu LAS (eng.  Listen Attend and Spell) model
 Glavne komponente ovog modola jesu Listener i Speller.  Okvirno gledano uloga listener komponente jeste da transformise ulazni signal u predefinisane karakteristike viseg nivoa (labele).  Takav izlaz prosledjuje se Speller komponenti koja konacno daje niz karaktera. 
 
 \bigskip
-Ubaci sliku
 
-\bigskip
-
-Slicno kao u poglavlju [] sa $\textbf{x}$ = $(x_1,  x_2,  ...,  x_T)$ oznacavamo ulazni signal.  $\textbf{y}$ predstavlja niz mogucih karaktera ukljucujuci razmak,  tacku,  zarez,  apostrof,  i tri specijalna karaktera (start - pocetak recenice,  stop - kraj recenice,  nep - nepoznat zvuk???).
+Slicno kao u poglavlju \ref{sec:ctc} sa $\textbf{x}$ = $(x_1,  x_2,  ...,  x_T)$ oznacavamo ulazni signal.  $\textbf{y}$ predstavlja niz mogucih karaktera ukljucujuci razmak,  tacku,  zarez,  apostrof,  i tri specijalna karaktera (start - pocetak recenice,  stop - kraj recenice,  blank - blanko karakter).
 
 \bigskip
 
@@ -446,8 +445,11 @@ Stopa pogrešnih reči se efikasno računa dinamičkim programiranjem, pomoću V
 
 Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
 
+\newpage
 \section{Zaključak}
 \label{sec:zakljucak}
+
+Ovim radom obradili smo najznacajnije i najuspesnije modele za automatsko prepoznavanje govora.  Uprkos tome sto su end to end modeli dosta korisceniji u praksi,  statisticki modeli ne zaostaju previse Cilj je bio opisati generalne ideje i principe na kojima se zasnivaju navedeni modeli,  dok se detalji implementacije istih mogu naci u originalnim radovima. 
 
 % \section{Osnovna uputstva}
 % Vaš seminarski rad mora da sadrži najmanje jednu \textbf{sliku}, najmanje jednu \textbf{tabelu} i najmanje \textbf{sedam referenci} u spisku literature. Najmanje jedna slika treba da bude originalna i da predstavlja neke podatke koje ste Vi osmislili da treba da prezentujete u svom radu. Isto važi i za najmanje jednu tabelu. 	Od referenci, neophodno je imati bar jednu \textbf{knjigu}, bar jedan \textbf{naučni članak} iz odgovarajućeg časopisa i bar jednu adekvatnu \textbf{veb adresu}. 
@@ -468,6 +470,7 @@ Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
 % LibriSpeech - https://openslr.org/12/
 % WSJ
 % Fisher
+\newpage
 \section{Dodatak: Pregled skupova podataka}
 \label{sec:skupovi}
 
