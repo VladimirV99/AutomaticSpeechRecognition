@@ -374,6 +374,14 @@ Slicno kao u poglavlju [] sa $\textbf{x}$ = $(x_1,  x_2,  ...,  x_T)$ oznacavamo
 
 Listener jeste rekurentna neuronska mreza piramidalne strukture.  Kao sto se moze primetiti na slici iznad broj neurona se u pravcu izlaznog sloja polovi.  Ova osobina nam omogucava smanjenje slozenosti izracunavanja,  sto je veoma pozeljno u slucaju kada je interval uzorkovanja veoma uzak.
 
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[scale=0.3]{listener.png}
+  \end{center}
+  \caption{Listener model}
+  \label{fig:listener_model}
+\end{figure}
+
 \bigskip
 Cilj je modelovati $\textbf{y}$ kao uslovnu raspodelu u zavisnosti od ulaznog signala $\textbf{x}$ i prethodnih izlaza $y_j,  j \in (1,  i-1)$
 
@@ -390,6 +398,14 @@ Speller je takodje rekurentna neuronska mreza.  Kao sto je vec pomenuto verovatn
 \label{eq:state}
 s_i = RNN (s_{i-1},  y_{i-1},  c_{i-1})
 \end{equation}
+
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[scale=0.3]{speller.png}
+  \end{center}
+  \caption{Speller model}
+  \label{fig:speller_model}
+\end{figure}
 
 \bigskip
 
