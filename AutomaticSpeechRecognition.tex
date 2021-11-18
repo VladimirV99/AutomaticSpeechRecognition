@@ -88,7 +88,7 @@ Taj postupak se naziva automatsko prepoznavanje govora.
 
 \textbf{Automatsko prepoznavanje govora} (eng.~{\em Automatic Speech Recognition, ASR}) je proces pretvaranja zvučnog signala govora u sekvencu reči pomoću kompjutera.
 Neke od najznacajnijih primena ovih sistema su: pametni licni asistenti (Google Assistant\footnote{https://assistant.google.com/}, Apple Siri\footnote{https://www.apple.com/siri/},\dots), transkripcija snimaka, pretrazivanje audio sadrzaja i pristupacnost.
-% slika waveform u recenicu (Uday 8.1) ?
+% slika
 
 Iako su istrazivanja na ovu temu pocela jos sredinom dvadesetog veka, popularnost je pocela da dobija tek u poslednjoj deceniji kada je uvodjenje dubokih neuronskih mreza drasticno povecalo performanse ovih sistema.
 Ta razlika je bila dovoljna da ucini ove sisteme prakticno primenljivim umesto nezgodnim za upotrebu zbog velikog broja gresaka.
@@ -107,54 +107,56 @@ Za glavne uzroke ovog naglog poboljsanja se smatraju \cite{hannun2021history}:
 % 2) the rapid rate of progress in graphics processing units
 % 3) the improvement in the learning algorithms and model architectures.
 
-% izlistati poglavlja
 U nastavku cemo prvo navesti neke izazove koje treba da resimo da bi smo napravili dobar sistem za prepoznavanje govora, zatim cemo opisati nacin rada dva najpopularnija modela: statisticki i end-to-end i na kraju cemo predstaviti nacin za njihovu evaluaciju.
 
 \section{Izazovi}
 % https://www.youtube.com/watch?v=q67z7PTGRi8
-Prepoznavanje govora je veoma tezak zadatak zato sto je potrebno da radi podjednako dobro u veoma razlicitim uslovima.
-Neki od najvecih izazova su:
+Prepoznavanje govora je veoma težak zadatak zato što je potrebno da radi podjednako dobro u veoma različitim uslovima.
+Neki od najvećih izazova su:
 \begin{itemize}
-  \item \textbf{Mala kolicina podataka za trening} --- 
-  Za ostvarivanje dobrih rezultata potrebno je sakupiti vise stotina ili cak hiljada sati labeliranih zvucnih snimaka koji treba da sadrze vise govornika razlicitog pola i starosti, koji govore razlicitim akcentima. 
-  Dok u skorije vreme jeste nastao porast u kolicini dostupnih podataka, veliki problem jos uvek predstavlja reprezentativnost razlicitih varijacija u govoru i nedostatak podataka za jezike sa manjim brojem govornika. 
-  Zbog toga se istrazuju alternativni nacini za treniranje kao sto su samo-treniranje (eng.~{\em self-training}) \cite{baevski2020wav2vec}, iterativno treniranje \cite{park2020noisy} ili treniranje koristeci kompjuterski generisan glas \cite{hannun2014deep}. 
-  U dodatku \ref{sec:skupovi} se moze naci tabela sa pregledom nekih od najpopularnijih trening skupova na engleskom jeziku.
+  \item \textbf{Mala količina podataka za trening} --- 
+  Za ostvarivanje dobrih rezultata potrebno je sakupiti više stotina ili čak hiljada sati labeliranih zvučnih snimaka koji treba da sadrže više govornika razlicitog pola i starosti, koji govore različitim akcentima. 
+  Dok u skorije vreme jeste nastao porast u količini dostupnih podataka, veliki problem još uvek predstavlja reprezentativnost različitih varijacija u govoru i nedostatak podataka za jezike sa manjim brojem govornika. 
+  Zbog toga se istražuju alternativni načini za treniranje kao sto su samo-treniranje (eng.~{\em self-training}) \cite{baevski2020wav2vec}, iterativno treniranje \cite{park2020noisy} ili treniranje koristeći kompjuterski generisan glas \cite{hannun2014deep}. 
+  U dodatku \ref{sec:skupovi} se može naći tabela sa pregledom nekih od najpopularnijih trening skupova na engleskom jeziku.
   
   \item \textbf{Stil govora} --- 
-  Postoje razliciti sistemi u zavisnosti od toga koji tip govora mogu da prepoznaju \cite{anusuya2010speech}. Tipovi govora poredjani po tezini propoznavanja su: 
+  Postoje različiti sistemi u zavisnosti od toga koji tip govora mogu da prepoznaju \cite{anusuya2010speech}. Tipovi govora poređani po težini propoznavanja su: 
   \begin{enumerate}
-    \item Izolovane reci --- reci su razdvojene dugim periodima tisine
-    \item Povezane reci --- reci su razdvojene kratkim pauzama
-    \item Neprekidan govor --- uvezbani govor, citanje ili diktiranje
-    \item Spontan govor --- neuvezbani, prirodni govor 
+    \item Izolovane reči --- reči su razdvojene dugim periodima tišine
+    \item Povezane reči --- reči su razdvojene kratkim pauzama
+    \item Neprekidan govor --- uvežbani govor, čitanje ili diktiranje
+    \item Spontani govor --- neuvežbani, prirodni govor 
   \end{enumerate}
-  Prve implementacije prepoznavanja govora su radile na nivou izolovanih reci i koristile su se za prepoznavanje odredjenih komandi ili cifara.
-  Danas se najvise truda ulaze u poboljsanje neprekidnog i spontanog govora.
+  Prve implementacije prepoznavanja govora su radile na nivou izolovanih reči i koristile su se za prepoznavanje određenih komandi ili cifara.
+  Danas se najviše truda ulaže u poboljšanje prepoznavanja neprekidnog i spontanog govora.
 
   \item \textbf{Karakteristike govornika} ---
-  Svaki covek ima razlicitu boju glasa i govori razlicitom brzinom. Cak i starost osobe i jacina govora bitno uticu na frekvenciju glasa.
-  Poseban problem pravi postojanje razlicitih dijalekata i akcenata koji mogu da imaju potpuno razlicite nacine za izgovaranje istih reci.
-  Jedan nacin za resavanje ovog problema je treniranje sistema na glasu govornika koji ce ga koristiti.
-  To su sistemi zavisni od korisnika (eng.~{\em speaker dependent}) i koriste se u slucajevima da samo jedno osoba treba da ih koristi.
+  Svaki čovek ima različitu boju glasa i govori različitom brzinom. Čak i starost osobe i jačina govora bitno utiču na frekvenciju glasa.
+  Poseban problem pravi postojanje različitih dijalekata i akcenata koji mogu da imaju potpuno različite načine za izgovaranje istih reči.
+  Jedan način za rešavanje ovog problema je treniranje sistema na glasu govornika koji će ga koristiti.
+  To su sistemi zavisni od korisnika (eng.~{\em speaker dependent}) i koriste se u slučajevima da samo jedna osoba treba da ih koristi.
   Sa druge strane postoje sistemi nezavisni od korisnika (eng.~{\em speaker independent}) koji treba da rade podjednako dobro za sve govornike.
   
-  \item \textbf{Okruzenje govornika} --- 
-  Ovi sistemi ce retko biti korisceni u potpuno tihim prostorijama sa profesionalnom opremom za snimanje, zbog toga treba da budu tolerantni na razlicite vrste pozadinske buke ili kvaliteta mikrofona (koliko je to moguce). 
-  Neke vrste sumova je moguce otkloniti analizom zvuka ili naprednijim metodama \cite{xu2015enhancement}, ali jedan od najvecih problema predstavlja postojanje drugih govornika u okolini.
-  Te signale je cesto tesko razlikovati od glasa primarnig govornika, i samim tim tesko ukloniti.
+  \item \textbf{Okruženje govornika} --- 
+  Ovi sistemi će retko biti korišćeni u potpuno tihim prostorijama sa profesionalnom opremom za snimanje. Zbog toga treba da budu tolerantni na različite vrste pozadinske buke ili kvaliteta mikrofona. 
+  Neke vrste šumova je moguće otkloniti analizom zvuka ili naprednijim metodama \cite{xu2015enhancement}, ali jedan od najvećih problema predstavlja postojanje drugih govornika u okolini.
+  Te signale je često teško razlikovati od glasa primarnig govornika, i samim tim teško ukloniti.
   
-  \item \textbf{Velicina recnika} --- 
-  Povecanje broja reci koje model moze da prepozna takodje povecava njegovu slozenost i otezava treniranje, ali se time dobija na tacnosti. 
-  Zbog toga je potrebno naci dobar kompromis izmedju velicine recnika i slozenosti modela. 
-  U slucajevima kada je potrebno pouzdano prepoznati samo neki skup komandi koriste se mali recnici i oni su cesto veoma pouzdani, ali za prepoznavanje opsteg govora danasnji sistemi su trenirani na skupu od oko 50.000-100.000 reci.
+  \item \textbf{Veličina rečnika} --- 
+  Povećanje broja reči koje model može da prepozna takođe povećava njegovu složenost i otežava treniranje, ali se time dobija na tačnosti. 
+  Zbog toga je potrebno naći dobar kompromis između veličine rečnika i složenosti modela. 
+  U slučajevima kada je potrebno pouzdano prepoznati samo neki skup komandi koriste se mali rečnici i oni su često veoma pouzdani, ali za prepoznavanje opšteg govora današnji sistemi su trenirani na skupu od oko 50.000-100.000 reči.
 \end{itemize}
 
 \section{Statisticki model}
-% Uday knjiga chap. 8
+\label{sec:statistical}
+
 Dugo vremena statisticki pristup je bio dominantan za sisteme za prepoznavanje govora.
-Cilj ovih sistema je da pronadju najverovatniju transkripciju za zadati ulaz.
+Iako je u skorije vreme pao u senku modela zasnovanih na dubokim neuronskim mrezama opisanim u poglavlju \ref{sec:e2e} ovaj model je jos uvek u sirokoj upotrebi i veoma vredan izucavanja.
+
 % Large Vocabulary Continuous Speech Recognition a Review
+Cilj ovih sistema je da pronadju najverovatniju transkripciju za zadati ulaz.
 Formalno, neka je $\hat{W}$ optimalan niz reci za transkripciju nekog zvucnog signala $X$. Cilj je optimizovati formulu \cite{kamath2019nlp}:
 \begin{equation*}
   \hat{W} = \argmax_{W} P(W|X)
@@ -168,15 +170,16 @@ a kako je $P(X)$ konstantno za konkretan ulaz, mozemo da ga eliminisemo:
   \label{eq:stat1}
   \hat{W} = \argmax_{W} P(X|W) P(W)
 \end{equation}
-Prvi deo, $P(X|W)$, racuna \textbf{akusticki model} (eng.~{\em acoustic model}), a drugi, $P(W)$, racuna \textbf{jezicki model} (eng.~{\em language model}).
-Ideja je da odvojeno optimizujemo obe prethodne velicine i ocekujemo da ce se tako maksimizirati ukupna verovatnoca.
+Ideja je da umesto modeliranja $P(W|X)$ sto je tesko, odvojeno modeliramo verovatnoce iz prethodne formule za koje imamo bolje tehnike.
 
-Najprirodniji nacin za racunanje $P(X|W)$ bi bio na nivou reci zato sto krajnji izlaz svakako treba da bude niz reci.
-Problem sa tim je sto postoji veliki broj varijacija u izgovoru reci, a nedovoljan broj primera za svaki od njih u trening skupu.
-Umesto toga, reci se dele na manje delove kao sto su foneme.
-\textbf{Foneme} su najmanje jezicke jedinice cijom kombinacijom se dobijaju reci. One postoje samo kao apstraktna ideja a njihova fizicka realizacija se zove glas.
+Najprirodniji nacin za racunanje $P(X|W)$ bi bio da se podeli na reci i za svaku od njih racuna verovatnoca da je izgovorena.
+U nekim slucajevima, kao na primer kada treba prepoznati samo neki mali skup komandi, tada se i koristi ovaj pristup.
+Problem nastaje u sistemima sa velikim vokabularom zato sto postoji veliki broj varijacija u izgovoru reci, a trening skup sadrzi mozda par primera za svaku od njih sto nije dovoljno da se dobro nauci njeno prepoznavanje.
+Dakle, umesto na reci potrebna je finija podela i za to potrebu cemo koristiti foneme.
+\textbf{Foneme} su najmanje jezicke jedinice na osnovu kojih mogu da se razlikuju znacenja vecih jedinica.
+One postoje samo kao apstraktna ideja a njihova fizicka realizacija se zove glas.
 
-Znaci ako je $S$ niz fonema, $P(X|W)$ iz formule \ref{eq:stat1} se razlaze i dobija se:
+Ako je $S$ niz fonema, $P(X|W)$ iz formule \ref{eq:stat1} se razlaze i dobija se:
 \begin{equation*}
   \hat{W} = \argmax_{W} \sum_{S} P(X,S|W) P(W)
 \end{equation*}
@@ -185,9 +188,11 @@ sto se moze aproksimirati kao:
   \label{eq:stat2}
   \hat{W} \approx \argmax_{W,S} P(X|S) P(S|W) P(W)
 \end{equation}
-gde se $P(S|W)$ zove \textbf{model izgovora} (eng.~{\em pronunciation model}). 
+Veličine iz prethodne formule imaju svoja imena na osnovu komponente koja ih računa:
+$P(X|S)$ se naziva \textbf{akusticki model} (eng.~{\em acoustic model}), 
+$P(S|W)$ je \textbf{model izgovora} (eng.~{\em pronunciation model}),
+a $P(W)$ se zove \textbf{jezički model} (eng.~{\em language model})\footnote{Neka literatura $P(X|W)$ naziva akustičkim modelom, a model izgovora tretira kao njegov deo. U ovom radu će biti podrazumevano da su oni odvojeni modeli.}.
 
-% slika modela
 % https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/_images/ASR.png
 Na slici \ref{fig:statistical_model} je prikazana cela struktura statistickog modela od zvucnog signala do transkripcije:
 \begin{figure}[h!]
@@ -198,70 +203,69 @@ Na slici \ref{fig:statistical_model} je prikazana cela struktura statistickog mo
   \label{fig:statistical_model}
 \end{figure}
 
-U nastavku ce biti opisana svaka od pomenutih komponenti, njena uloga i nacin rada.
+U nastavku će biti opisana svaka od prikazanih komponenti, njena uloga i način rada.
 
-\subsection{Procesiranje zvucnog signala}
-Sirovi zvucni signal je veoma nepogodan za koriscenje zato sto sadrzi veliku kolicinu nepotrebnih informacija i šuma.
-Zbog toga se pre prosledjivanja akustickom modelu, signal prvo obradjuje tako da ostanu samo kljucne karakteristike i smanji sum i velicina reprezentacije.
+\subsection{Obrada zvučnog signala}
+Sirovi zvučni signal je veoma nepogodan za korišćenje zato što sadrži veliku količinu nebitnih informacija i šuma.
+Zbog toga se, pre prosleđivanja akustičkom modelu, signal prvo obrađuje tako da ostanu samo ključne karakteristike i smanje šum i veličina reprezentacije.
 
-Signal delimo na kratke segmente koje zovemo \textbf{okviri} (eng.~{\em frame}).
-Svaki od njih je fiksne duzine (obicno 10-30 milisekundi) sa kratkim preklapanjem susednim okvirima radi smanjenja naglih promena prilikom prelaska iz jednog u drugi.
-Pretpostavka je da je u svakom od okviru glas konstantan, to jest da se glasovi mogu menjati samo prelaskom iz jednog okvira u drugi.
-Na svaki od tih novodobijenih delova se zatim primenjuje neka vrsta spektralne analize najcesce zasnovana na Furijeovoj transformaciji kojom se izdvajaju samo njegove najbitnije karakteristike.
-Izdvajanje karakteristika pokusava da oponasa ljudski slusni sistem filtrirajuci odredjene frekvencije i skalirajuci ih onako kako bi ih covek cuo.
-Tacna reprezentacija koja se koristi varira u zavisnosti od modela, ali jedna od najpopularnijih je MFCC [?].
+Signal se deli na kratke segmente koji se zovu \textbf{okviri} (eng.~{\em frame}).
+Svaki od njih je fiksne duzine (obično 10-30 milisekundi) sa kratkim preklapanjem sa susednim okvirima radi smanjenja naglih promena prilikom prelaska iz jednog u drugi.
+Pretpostavka je da je u svakom okviru glas konstantan, to jest da se glasovi mogu menjati samo prelaskom iz jednog okvira u drugi.
+Na svaki od tih novodobijenih delova se zatim primenjuje neka vrsta spektralne analize najčešće zasnovana na Furijeovoj transformaciji kojom se izdvajaju samo njegove najbitnije karakteristike.
+Tačna reprezentacija koja se koristi varira u zavisnosti od modela, ali jedna od najpopularnijih je \textbf{MFCC} (Mel-Frequency Cepstral Coefficients) \cite{dave2013feature} zasnovana na Mel skali koja oponaša ljudski slušni sistem.
+Ovako obrađen signal se prosleđuje akustičkom modelu.
 
-\subsection{Akusticki model}
-% https://www.cs.cmu.edu/~roni/10601-slides/hmm-for-asr-whw.pdf
-% https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-345-automatic-speech-recognition-spring-2003/lecture-notes/lecture15.pdf
-Akusticki model je zaduzen da pretvori obradjeni zvucni signal u sekvencu fonema. 
-Za resavanje ovog problema uvescemo teoriju o skrivenim Markovljevim modelima \cite{rabiner1989hmm}.
-
+\subsection{Akustički model}
 % https://cs229.stanford.edu/section/cs229-hmm.pdf
-Neka je $S = \{s_1, s_2, \dots, s_n\}$ skup stanja, $A$ matrica dimenzije $n \times n$ gde $A_{ij}$ predstavlja verovatnocu prelaska iz stanja $s_i$ u $s_j$ tako da vazi $A_{ij} > 0$ i $\sum_{j=1}^{n} A_{ij} = 1$.
-U diskretnim trenucima vrsi se promena trenutnog stanja na osnovu verovatnoca zadatih matricom $A$. 
-Specijalno, pocetno stanje moze da se izabere nasumicno iz neke raspodele.
-Za svaki trenutak $t = 1,2,\dots,T$, oznacicemo stanje u tom trenutku sa $q_t$.
-Ukoliko dodatno vazi da verovatnoca prelaska u sledece stanje vazi samo od trenutnog stanja: 
-$$P(q_t = S_i | q_{t-1} = S_j, q_{t-2} = S_k, \dots) = P(q_t = S_i | q_{t-1} = S_j)$$
-i da se verovatnoce prelaska iz jednog stanja u drugo ne menjaju:
-$$P(q_t = S_i | q_{t-1} = S_j) = P(q_2 = S_i | q_1 = S_j) \forall t=2..T$$
-onda se prethodno opisan sistem naziva \textbf{Markovljev model}.
+% https://www.cs.cmu.edu/~roni/10601-slides/hmm-for-asr-whw.pdf
+Akustički model je zadužen da pretvori obrađeni zvučni signal u niz fonema. 
+Ovaj zadatak predstavlja idealan slučaj za primenu skrivenih Markovljevih modela \cite{rabiner1989hmm}.
 
-Prosirimo sada ovaj sistem dalje. Neka vaze sve prethodno uvedene oznake i dodatno neka je $V = \{v_1, v_2, \dots, v_m\}$ skup mogucih obzervacija za svako stanje i $B$ matrica dimenzije $n \times m$ gde $B_{jk}$ predstavlja verovatnocu obzervacije $v_k$ u stanju $s_j$.
-Sada u svakom trenutku $t$ osim promene stanja dobijamo i novu obzervaciju $x_t$ na osnovu verovatnoca zadatih matricom $B$.
-Razlika sada je sto novo stanje ostaje skriveno nego se samo vidi obzervacija u svakom trenutku.
-Ako jos vazi da je svaka obzervacija zavisi samo od trenutnog stanja a ne od prethodnih obzervacija:
-$$P(x_t = v_i | x_{t-1}, \dots, x_1, q_t, \dots, q_1) = P(x_t = v_i | q_t)$$
-tada se ovaj sistem se naziva \textbf{skriveni Markovljev model}.
+\textbf{Skriveni Markovljev model} (eng.~{\em hidden Markov model}) je dinamički sistem kojeg karakteriše sledeće:
+\begin{enumerate}
+  \item $N$ skrivenih stanja $S = \{S_1, S_2, \dots, S_N\}$ pri cemu $q_t$ označava stanje u trenutku $t$
+  \item $M$ obzervacionih simbola $V = \{V_1, V_2, \dots, V_M\}$ pri cemu $o_t$ označava obzervaciju u trenutku $t$
+  \item Raspodela verovatnoća promene stanja predstavljena matricom $A=\{a_{ij}\}$ dimenzije $N \times N$ gde važi: $$a_{ij} = P(q_{t+1} = S_j | q_{t} = S_i) \quad 1 \leq i,j \leq N$$
+  \item Raspodela verovatnoća obzervacionih simbola iz stanja $j$ predstavljena matricom $B=\{b_j(k)\}$ dimenzije $N \times M$ gde važi: $$b_j(k) = P(o_t = V_k | q_t = S_j) \quad 1 \leq j \leq N, 1 \leq k \leq M$$
+  \item Raspodela inicijalnog stanja $\pi=\{\pi_i\}$ gde važi: $$\pi_i = P(q_1 = S_i) \quad 1 \leq i \leq N$$
+\end{enumerate}
+Primer jednog modela je prikazan na slici \ref{fig:hmm}.
 
-Konkretno za prepoznavanje govora koristicemo ove modele da opisemo svaku fonemu.
-Svaki od njih ce se sastojati od nekog zadatog broja stanja pri cemu ce obzervacije govoriti da li je ta fonema trenutno primecena.
-Kada imamo model za svaku fonemu, njih je moguce kombinovati da se dobije model za rec, koji se dalje kombinuju u model za recenicu.
-Sada jos samo treba odrediti raspodele verovatnoca za obzervacije fonema. 
-To se radi treniranjem modela nad skupom podataka uz pomoc Baum-Welch algoritma zasnovanog na dinamickom programiranju.
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[scale=0.4]{hmm.png}
+  \end{center}
+  \caption{Primer skrivenog Markovljevog modela sa 2 stanja i 3 obzervaciona simbola}
+  \label{fig:hmm}
+\end{figure}
 
-Istrenirani model posle moze da predvidi najverovatniji niz fonema koristeci Vetrebi algoritam za pretragu.
+Konkretno za prepoznavanje govora, skriveni Markovljevi modeli se koriste za opisivanje svake foneme.
+Svaki od njih se sastoji od nekog zadatog broja stanja (obicno 3 ili 5), a obzervacije su okviri zvučnog signala cije su verovatnoće predstavljene kao mešavina Gausovih raspodela.
+Raspodele verovatnoća su dobijene treniranjem modela na skupu podataka.
+Za svaku rečenicu iz trening skupa se konstruiše model spajanjem modela fonema u reči, pa reči u rečenicu.
+Na njega se onda primeni Baum-Welch algoritam koji popravlja verovatnoće da više odgovaraju datim podacima.
+
+Istrenirani model posle moze da predvidi najverovatniji niz fonema (stanja) za datu obzevaciju koristeci Vetrebi algoritam za pretragu.
 
 \subsection{Model izgovora}
-U prethodnoj sekciji je receno da se modeli fonema spajaju u modele reci, ali nije napomenuto tacno kako se to radi.
-To je bas zadatak modela izgovora.
-On je u sustini veliki recnik koji mapira reci u niz fonema kako se one izgovaraju.
-Ako postoji vise varijacija izgovora one se smatraju kao razlicite stavke u recniku.
-Sada ako je poznato ovo preslikavanje lako se moze za datu recenicu konstruisati skriveni Markovljev model spajanjem modela odgovarajucih reci za koje je sada poznato presikavanje u foneme.
+U prethodnoj sekciji je rečeno da se prilikom treniranja modeli fonema spajaju u modele reči, ali nije objašnjeno tačno kako se to radi.
+To je baš zadatak modela izgovora.
+On je u suštini veliki rečnik koji za svaku reč čuva niz fonema kako se ona izgovara.
+Ako postoji više varijacija izgovora, one se smatraju kao ražlicite stavke u rečniku.
+Sada konstrukcija modela reči postaje trivijalna, samo se pronađe njen izgovor u rečniku i nadovežu odgovarajuci modeli fonema.
+Ukoliko se reč ne nalazi u rečniku, sistem za prepoznavanje govora neće biti u stanju da je prepozna.
 
-Prirodno sledece pitanje je kako se odredjuju ova preslikavanja. 
-Ovo je zapravo jedan od najtezih zadataka za modeliranje zato se on ne uci na skupu podataka nego ga konstruisu eksperti iz tog domena.
-Za svaku rec, neko je morao da zapise na koji nacin se izgovara uzimajuci u obzir da potencijalno postoji vise izgovora.
-Sa obzirom da danasnji sistemi razlikuju oko 100.000 reci, ovo nimalo nije lak posao.
+Prirodno sledeće pitanje je kako se određuju ova preslikavanja. 
+Ovo je zapravo jedan od najtežih zadataka za modeliranje zato što se on ne uči na skupu podataka nego ga konstruišu eksperti iz tog domena.
+Za svaku reč, neko je morao da zapiše na koji način se izgovara uzimajući u obzir da potencijalno postoji više izgovora.
+Sa obzirom da današnji sistemi razlikuju oko 100.000 reči, ovo nimalo nije lak posao.
 
-Na engleskom jeziku, jedan od najpoznatijih recnika izgovora je CMUdict \footnote{http://www.speech.cs.cmu.edu/cgi-bin/cmudict} od Carnegie Mellon univerziteta koji sadrzi preko 134.000 reci.
-
-\subsection{Jezicki model}
-Povratkom na formulu \ref{eq:stat1}, jezicki model dodeljuje verovatnocu pojavljivanja $P(W)$ svakoj mogucoj sekvenci reci $W$.
-Ovde se uzima u obzir relativna ucestalost reci, verovatnoca da se reci nadju jedna za drugom, i mogu da se vrse dodatne sintaksne i semanticke provere.
-Postoje recenice koje zvuce slicno ali nemaju sve semanticko znacenje.
-Tada se od njih bira ona koja ima najvise smisla.
+\subsection{Jezički model}
+Povratkom na formulu \ref{eq:stat2}, jezički model dodeljuje verovatnoću pojavljivanja $P(W)$ svakoj mogućoj sekvenci reči $W$.
+Ovde se uzima u obzir relativna učestalost reči, verovatnoća da se reči nađu jedna za drugom, i mogu da se vrše dodatne sintaksne i semantičke provere.
+Postoje rečenice koje zvuče slično ali nemaju sve semantičko znacenje.
+Tada se od njih bira ona koja ima najviše smisla.
 % primer
 
 Kako $P(W)$ ne zavisi od zvucnog signala, moze se odvojeno trenirati na samo tekstualnom skupu podataka kojih postoji dosta vise i imaju veci broj primera od skupova sa transkribovanim snimcima.
@@ -295,6 +299,7 @@ Algoritam je dakle sledeci: odredimo verovatnocu za svaku rec da bude prva pa od
 Ovaj postupak se ponavlja sve dok ne dodjemo do kraja recenice i ona predstavlja konacnu transkripciju govora.
 
 \section{End-to-end model}
+\label{sec:e2e}
 % prednosti u odnosu na HMM
 % nije potreban ekspert za jezik
 % lakse treniranje
@@ -423,16 +428,21 @@ gde je $\bar{y_j}$ objektivna vrednost karaktera $j$.
 Finalno dekodiranje vrsi se algoritmom beam pretrage (\textit{eng.  beam search}).  U koraku prosirivanja trenutnog cvora pretrage bira se $\beta$ najverovatnijih karaktera po verovatnoci dobijenoj na izlazu Speller komponente,  gde je $\beta$ parametar beam search algoritma.
 
 \section{Metrike za evaluaciju}
-Standardna mera za procenu kvaliteta sistema za prepoznavanje govora je stopa pogresnih reci (eng.~{\em Word Error Rate (WER)}).
-% https://en.wikipedia.org/wiki/Word_error_rate
+Standardna mera za procenu kvaliteta sistema za prepoznavanje govora je \textbf{stopa pogrešnih reci} (eng.~{\em word error rate, WER}).
+Za njeno izračunavanje potrebno je da imamo generisan tekst koji evaluiramo i tačnu transkripciju kao referencu.
+Formula je izvedena normalizacijom Levenštajnovog rastojanja i izgelda ovako:
 \begin{equation*}
-  WER = \frac{S + D + I}{N}
+  WER = \frac{I + D + S}{N}
 \end{equation*}
-gde je $S$ broj zamenjenih reci, $D$ broj obrisanih reci, $I$ broj umetnutih reci, i $N$ ukupan broj reci u referentnoj recenici.
-Minimalna vrednost koju moze da dobije je 0, dok maksimalna vrednost moze da bude preko 1 (npr. veliki broj umetnutih reci).
-% dinamicko programiranje
-% Wagner-Fischer algorithm
-Stopa pogresnih reci se efikasno racuna dinamickim programiranjem, pomocu Vagner-Fiserovog algoritma (eng.)
+gde je:
+\begin{itemize}
+  \item $I$ broj umetnutih reči
+  \item $D$ broj obrisanih reči
+  \item $S$ broj zamenjenih reči
+  \item $N$ ukupan broj reči u referenci
+\end{itemize}
+Minimalna vrednost koju može da ima je 0, dok maksimalna vrednost može da bude preko 1 (npr. izgovorena je jedna reč a prepoznate dve).
+Stopa pogrešnih reči se efikasno računa dinamičkim programiranjem, pomoću Vagner-Fišerovog algoritma (eng.~{\em Wagner-Fischer algorithm}). % čiji pseudokod se može naći u dodatku
 
 Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
 
@@ -442,30 +452,6 @@ Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
 % \section{Osnovna uputstva}
 % Vaš seminarski rad mora da sadrži najmanje jednu \textbf{sliku}, najmanje jednu \textbf{tabelu} i najmanje \textbf{sedam referenci} u spisku literature. Najmanje jedna slika treba da bude originalna i da predstavlja neke podatke koje ste Vi osmislili da treba da prezentujete u svom radu. Isto važi i za najmanje jednu tabelu. 	Od referenci, neophodno je imati bar jednu \textbf{knjigu}, bar jedan \textbf{naučni članak} iz odgovarajućeg časopisa i bar jednu adekvatnu \textbf{veb adresu}. 
 % \textbf{Dužina seminarskog rada treba da bude od 10 do 12 strana.} Svako prekoračenje ili potkoračenje biće kažnjeno sa odgovarajućim brojem poena. Eventualno, nakon strane 12, može se javiti samo tekst poglavlja \textbf{Dodatak} koji sadrži nekakav dodatni k\^{o}d, ali je svakako potrebno da rad može da se pročita i razume i bez čitanja tog dodatka. 
-
-% \section{Engleski termini i citiranje}	
-% \label{sec:termini_i_citiranje}
-
-% Na svakom mestu u tekstu naglasiti odakle tačno potiču informacije. Uz sve novouvedene termine u zagradi naglasiti od koje engleske reči termin potiče. 
-
-% Naredni primeri ilustruju način uvođenja enlegskih termina kao i citiranje.
-
-% \begin{primer}
-% Problem zaustavljanja (eng.~{\em halting problem}) je neodlučiv \cite{haltingproblem}.
-% \end{primer}
-
-% \begin{primer}
-% Za prevođenje programa napisanih u programskom jeziku C može se koristiti GCC kompajler \cite{gcc}.
-% \end{primer}
-
-% \begin{primer}
-%  Da bi se ispitivala ispravost softvera, najpre je potrebno precizno definisati njegovo ponašanje \cite{laski2009software}. 
-% \end{primer}
-
-% Broj naslova i podnaslova je proizvoljan. Neophodni su samo Uvod i Zaključak. Na poglavlja unutar teksta referisati se po potrebi. 
-% \begin{primer}
-% U odeljku \ref{sec:naslov1} precizirani su osnovni pojmovi, dok su zaključci dati u odeljku \ref{sec:zakljucak}.
-% \end{primer}
 
 \addcontentsline{toc}{section}{Literatura}
 \appendix
@@ -480,18 +466,24 @@ Cilj sistema za prepoznavanje govora je da minimizuje ovu vrednost.
 % CommonVoice - https://commonvoice.mozilla.org/en/datasets
 % TIMIT - https://catalog.ldc.upenn.edu/LDC93S1
 % LibriSpeech - https://openslr.org/12/
+% WSJ
+% Fisher
 \section{Dodatak: Pregled skupova podataka}
 \label{sec:skupovi}
 
 \begin{table}[h!]
 \begin{center}
-  % \caption{Razlčita poravnanja u okviru iste tabele ne treba koristiti jer su nepregledna.}
-  \begin{tabular}{|c|c|c|}
+  % \caption{}
+  \begin{tabular}{|c|c|c|c|c|}
     \hline
-    TIMIT & cell2 & cell3 \\ 
-    SwitchBoard & cell5 & cell6 \\ 
-    LibriSpeech & cell8 & cell9 \\ 
-    CommonVoice & a & a \\
+    Naziv skupa   & Duzina (sati) & Broj recenica & Broj govornika & Nivo transkripcije \\
+    \hline
+    TIMIT         & 5,4           & ?             & ?              & foneme, reci       \\ 
+    Switchboard-1 & 260           & ?             & ?              & reci               \\ 
+    LibriSpeech   & 100           & ?             & ?              & ?                  \\ 
+    CommonVoice   & 2015          & ?             & ?              & ?                  \\
+    GigaSpeech    & 10.000        & ?             & nepoznato      & reci               \\
+    VoxPopuli     & 543           & 1313          & 413.581        & reci               \\
     \hline
   \end{tabular}
   % \label{tab:tabela1}
