@@ -356,7 +356,53 @@ h(x) = \argmax_{l \in L^U} p(l | x)
 
 Najjednostavniji algoritam jeste pohlepni odabir najbolje oznake za svaki vremenski trenutak ponaosob.  Medjutim, ovakav pristup ne garantuje optimalnost.  Naravno,  postoje bolji algoritmi za resavanje datog problema. Isti nece biti obradjivani u ovom radu, ali se mogu naci u [].
 
-\subsection{modeli zasnovani na paznji}
+\subsection{Modeli zasnovani na paznji}
+
+Ovu grupu modela analiziramo na osnovu LAS (eng.  Listen Attend and Spell) modela.  Glavna razlika izmedju CTC modela i LAS modela ogleda se u odbacivanju pretpostavke o nezavisnosti u okviru niza oznaka.  
+
+\bigskip
+Glavne komponente ovog modola jesu Listener i Speller.  Okvirno gledano uloga listener komponente jeste da transformise ulazni signal u predefinisane karakteristike viseg nivoa (labele).  Takav izlaz prosledjuje se Speller komponenti koja konacno daje niz karaktera. 
+
+\bigskip
+Ubaci sliku
+
+\bigskip
+
+Slicno kao u poglavlju [] sa $\textbf{x}$ = $(x_1,  x_2,  ...,  x_T)$ oznacavamo ulazni signal.  $\textbf{y}$ predstavlja niz mogucih karaktera ukljucujuci razmak,  tacku,  zarez,  apostrof,  i tri specijalna karaktera (start - pocetak recenice,  stop - kraj recenice,  nep - nepoznat zvuk???).
+
+\bigskip
+
+Listener jeste rekurentna neuronska mreza piramidalne strukture.  Kao sto se moze primetiti na slici iznad broj neurona se u pravcu izlaznog sloja polovi.  Ova osobina nam omogucava smanjenje slozenosti izracunavanja,  sto je veoma pozeljno u slucaju kada je interval uzorkovanja veoma uzak.
+
+\bigskip
+Cilj je modelovati $\textbf{y}$ kao uslovnu raspodelu u zavisnosti od ulaznog signala $\textbf{x}$ i prethodnih izlaza $y_j,  j \in (1,  i-1)$
+
+\begin{equation}
+\label{eq:chain}
+P(y | x) = \prod_i P(y_i | x,  y_j,  j < i)
+\end{equation}
+
+\bigskip
+
+Speller je takodje rekurentna neuronska mreza.  Kao sto je vec pomenuto verovatnoca odabira svakog karaktera zavisi od odabira svih prethodnih.  Na izlaz $y_i$ utice stanje $s_i$ i kontekst $s_i$.  Stanje se racuna rekurentno na osnovu prethodnog stanja,  izlaza i konteksta.
+
+ \begin{equation}
+\label{eq:state}
+s_i = RNN (s_{i-1},  y_{i-1},  c_{i-1})
+\end{equation}
+
+\bigskip
+
+Kontekst ???
+
+Treniranje se sprovodi maksimizacijom sume uslovnih log verovatnoca za svaki karakter.
+
+ \begin{equation}
+\label{eq:max}
+\max_{\theta} \sum_i \log P(y_i | x,  \bar{y}_j,  j < i; \theta)
+\end{equation}
+
+gde je $\bar{y_j}$ objektivna vrednost karaktera $j$.
 
 \section{Metrike za evaluaciju}
 Standardna mera za procenu kvaliteta sistema za prepoznavanje govora je stopa pogresnih reci (eng.~{\em Word Error Rate (WER)}).
