@@ -409,9 +409,9 @@ s_i = RNN (s_{i-1},  y_{i-1},  c_{i-1})
 
 \bigskip
 
-Kontekst ???
+Kontekst se izracunava koriscenjem standardnog mehanizma paznje (\textit{eng. Attention mechanism}).  Intuitivno, kontekst prikuplja relevantno znanje o okolnom ulaznom signalu potrebno za predikciju narednog karaktera,  na taj nacin odredjivajuci koliko znanje o okolini utice na znanje o trenutnom karakteru.
 
-Treniranje se sprovodi maksimizacijom sume uslovnih log verovatnoca za svaki karakter.
+Treniranje se sprovodi odredjivanjem parametara koji maksimizaciju sumu uslovnih log verovatnoca za svaki karakter.
 
  \begin{equation}
 \label{eq:max}
@@ -419,6 +419,8 @@ Treniranje se sprovodi maksimizacijom sume uslovnih log verovatnoca za svaki kar
 \end{equation}
 
 gde je $\bar{y_j}$ objektivna vrednost karaktera $j$.
+
+Finalno dekodiranje vrsi se algoritmom beam pretrage (\textit{eng.  beam search}).  U koraku prosirivanja trenutnog cvora pretrage bira se $\beta$ najverovatnijih karaktera po verovatnoci dobijenoj na izlazu Speller komponente,  gde je $\beta$ parametar beam search algoritma.
 
 \section{Metrike za evaluaciju}
 Standardna mera za procenu kvaliteta sistema za prepoznavanje govora je stopa pogresnih reci (eng.~{\em Word Error Rate (WER)}).
