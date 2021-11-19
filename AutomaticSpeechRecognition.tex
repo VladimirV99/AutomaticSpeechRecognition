@@ -68,7 +68,12 @@
 
 \maketitle
 
-\abstract{ Tema ovog rada je da priblizi citaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznacajnijim arhitekturama ovih sistema.  U prva dva poglavlja bavimo se definisanjem osnovnih pojmova,  kratkim pregledom istorije i otezavajucim faktorima.  Trece i cetvrto poglavlje prikazuje dve razlicite metodologije prepoznavanja govora i relevantne modele.  Peto poglavlje opisuje nacin evaluacije prethodno navedenih kao i drugih modela.}
+\abstract{
+Tema ovog rada je da priblizi citaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznacajnijim arhitekturama ovih sistema. 
+U prva dva poglavlja bavimo se definisanjem osnovnih pojmova,  kratkim pregledom istorije i otezavajucim faktorima. 
+Trece i cetvrto poglavlje prikazuje dve razlicite metodologije prepoznavanja govora i relevantne modele. 
+Peto poglavlje opisuje nacin evaluacije prethodno navedenih kao i drugih modela.
+}
 
 \bigskip
 \textbf{Ključne reči:} prepoznavanje govora
@@ -80,32 +85,28 @@
 \section{Uvod}
 \label{sec:uvod}
 
-Govor je za ljude najintuitivniji i prirodniji nacin komunikacije. Zbog toga je od samog nastanka kompjutera, nastala i ideja da koristimo isti nacin komunikacije da interagujemo sa njima.
-To bi znatno smanjilo potrebno predznanje za koriscenje kompjutera i ucnilio ga pristupacnijim vecem broju ljudi. Najveca prepreka ovim sistemima do skoro je bio kako sa velikom tacnosti prepoznati sta je korisnik rekao.
+Govor je za ljude najintuitivniji i najprirodniji način komunikacije. 
+Zbog toga je u toku razvoja računarskih sistema, nastala ideja da isti vid komunikacije koristimo i za interakciju sa kompjuterima.
+To bi znatno smanjilo potrebno predznanje za njihovo korišćenje i učnilio ih pristupačnijim većem broju ljudi. 
+Najveća prepreka ovoj ideji do skoro je bilo kako sa velikom tačnosti prepoznati šta je korisnik rekao.
 Taj postupak se naziva automatsko prepoznavanje govora.
 
-\textbf{Automatsko prepoznavanje govora} (eng.~{\em Automatic Speech Recognition, ASR}) je proces pretvaranja zvučnog signala govora u sekvencu reči pomoću kompjutera.
-Neke od najznacajnijih primena ovih sistema su: pametni licni asistenti (Google Assistant\footnote{https://assistant.google.com/}, Apple Siri\footnote{https://www.apple.com/siri/},\dots), transkripcija snimaka, pretrazivanje audio sadrzaja i pristupacnost.
-% slika
+\textbf{Automatsko prepoznavanje govora} (eng.~{\em Automatic Speech Recognition, ASR}) je proces pretvaranja zvučnog signala govora u odgovarajući niz reči pomoću kompjutera.
+Neke od najznačajnijih primena ovih sistema danas su pametni lični asistenti (Google Assistant\footnote{https://assistant.google.com/}, Apple Siri\footnote{https://www.apple.com/siri/},\dots), transkripcija i pretraživanje audio sadržaja, automatsko titlovanje snimaka i pristupačnost.
 
-Iako su istrazivanja na ovu temu pocela jos sredinom dvadesetog veka, popularnost je pocela da dobija tek u poslednjoj deceniji kada je uvodjenje dubokih neuronskih mreza drasticno povecalo performanse ovih sistema.
-Ta razlika je bila dovoljna da ucini ove sisteme prakticno primenljivim umesto nezgodnim za upotrebu zbog velikog broja gresaka.
-Jedan od najznacajnijih postignuca je ostvareno 2016. godine je kompanija Majkrosoft napravila sistem koji je ostvario iste rezultate kao ljudski eksperti na transkripciji Switchboard skupa podataka \cite{switchboard}.
-% Human level switchboard
+Iako su istraživanja na ovu temu počela još sredinom dvadesetog veka, popularnost je pošela da dobija tek u poslednjoj deceniji kada je uvođenje dubokih neuronskih mreza drastično povećalo performanse ovih sistema.
+Ta razlika je bila dovoljna da učini ove sisteme praktično primenljivim u odnosu na prethodne koji su bili nezgodni za upotrebu zbog velikog broja grešaka koje su pravili.
+Prethodna decenija je videla i izjednačavanje sposobnosti računara i ljudi u prepoznavanju govora kada je kompanija Majkrosoft napravila sistem koji je ostvario iste rezultate kao ljudski eksperti na transkripciji Switchboard skupa podataka \cite{switchboard}.
 % https://blogs.microsoft.com/ai/historic-achievement-microsoft-researchers-reach-human-parity-conversational-speech-recognition/
 % https://www.microsoft.com/en-us/research/blog/microsoft-researchers-achieve-new-conversational-speech-recognition-milestone/
-Za glavne uzroke ovog naglog poboljsanja se smatraju \cite{hannun2021history}:
+Za glavne uzroke ovog naglog poboljšanja se smatraju \cite{hannun2021history}:
 \begin{enumerate}
-  \item Sakupljanje velike kolicine tanskribovanih skupova podataka
-  \item Nagli porast u performansama grafickih procesorskih jedinica (GPU)
-  \item Poboljsanje algoritama za ucenje i arhitektura modela
+  \item Sakupljanje ogromne količine tanskribovanih skupova podataka
+  \item Nagli porast u performansama grafičkih procesorskih jedinica
+  \item Poboljšanje algoritama za mašinsko učenje i arhitektura modela
 \end{enumerate}
-% The History of Speech Recognition to the Year 2030
-% 1) the curation of massive transcribed data sets,
-% 2) the rapid rate of progress in graphics processing units
-% 3) the improvement in the learning algorithms and model architectures.
 
-U nastavku cemo prvo navesti neke izazove koje treba da resimo da bi smo napravili dobar sistem za prepoznavanje govora, zatim cemo opisati nacin rada dva najpopularnija modela: statisticki i end-to-end i na kraju cemo predstaviti nacin za njihovu evaluaciju.
+U nastavku ovog rada će prvo biti navedeni neki izazovi na koje se nailazi prilikom modelovanja sistema za prepoznavanja govora, zatim će biti opisan način rada dva najpopularnija modela: statistički i end-to-end i na kraju će biti predstavljen način za njihovu evaluaciju.
 
 \section{Izazovi}
 % https://www.youtube.com/watch?v=q67z7PTGRi8
@@ -195,7 +196,7 @@ a $P(W)$ se zove \textbf{jezički model} (eng.~{\em language model})\footnote{Ne
 Na slici \ref{fig:statistical_model} je prikazana cela struktura statistickog modela od zvucnog signala do transkripcije:
 \begin{figure}[h!]
   \begin{center}
-    \includegraphics[scale=0.4]{statistical_model.png}
+    \includegraphics[scale=0.5]{statistical_model.png}
   \end{center}
   \caption{Statisticki model}
   \label{fig:statistical_model}
@@ -230,11 +231,12 @@ Ovaj zadatak predstavlja idealan slučaj za primenu skrivenih Markovljevih model
 \end{enumerate}
 Primer jednog modela je prikazan na slici \ref{fig:hmm}.
 
+% https://www.researchgate.net/figure/State-transition-diagram-of-a-hidden-Markov-model_fig1_245563174
 \begin{figure}[h!]
   \begin{center}
-    \includegraphics[scale=0.4]{hmm.png}
+    \includegraphics[scale=0.3]{hmm.png}
   \end{center}
-  \caption{Primer skrivenog Markovljevog modela sa 2 stanja i 3 obzervaciona simbola}
+  \caption{Primer skrivenog Markovljevog modela sa 2 skrivena stanja i 3 obzervaciona simbola}
   \label{fig:hmm}
 \end{figure}
 
@@ -266,35 +268,38 @@ Postoje rečenice koje zvuče slično ali nemaju sve semantičko znacenje.
 Tada se od njih bira ona koja ima najviše smisla.
 % primer
 
-Kako $P(W)$ ne zavisi od zvucnog signala, moze se odvojeno trenirati na samo tekstualnom skupu podataka kojih postoji dosta vise i imaju veci broj primera od skupova sa transkribovanim snimcima.
-U nekim slucajevima trenirana raspodela se moze promeniti u zavisnosti od korisnika (npr. pametni asistenti prepoznaju kontakte na korisnikovom telefonu).
+Kako $P(W)$ ne zavisi od zvučnog signala, može se odvojeno trenirati na samo tekstualnom skupu podataka kojih postoji dosta više i imaju veći broj primera od skupova sa transkribovanim snimcima.
+U nekim slučajevima trenirana raspodela se može promeniti u zavisnosti od korisnika (npr. pametni lični asistenti prepoznaju kontakte na korisnikovom telefonu).
 
-Najvesci vid implementacije ovog modela je pomocu n-grama.
-Neka se $W$ razdvaja na reci $W = \{w_1, w_2, \dots, w_m\}$ i neka je $n$ duzina n-grama.
-To znaci da pri racunanju verovatnoce pojavljivanja neke reci u obzir uzimamo samo $n-1$ njenih prethodnika a za ostale pretpostavljamo da ne uticu.
-Tada se $P(W)$ moze predstaviti kao:
+Najčešći vid implementacije ovog modela je pomoću n-grama.
+Neka se transkripcija $W$ razdvaja na reči $W = \{w_1, w_2, \dots, w_m\}$ i neka je $n$ dužina n-grama.
+To znači da pri računanju verovatnoće pojavljivanja neke reči u obzir uzimamo samo $n-1$ njenih prethodnika.
+Tada se $P(W)$ može predstaviti kao:
 \begin{equation*}
   P(W) = \prod_{i=1}^{m} P(w_i | w_1,\dots,w_{i-1}) = \prod_{i=1}^{m} P(w_i | w_{i-n+1},\dots,w_{i-1})
 \end{equation*}
-ako sa $C(x)$ oznacimo broj pojavljivanja sekvence $x$ u trening skupu tada se verovatnoca odredjene reci moze proceniti kao udeo pojavljivanja neke sekvence u broju pojavljivanja njenog prefiksa:
+Ako $C(x)$ označava broj pojavljivanja sekvence $x$ u trening skupu, verovatnoća da je $w_i$ sledeća reč se može proceniti kao:
 \begin{equation*}
   P(w_i | w_{i-n+1},\dots,w_{i-1}) = \frac{C(w_{i-n+1},\dots,w_i)}{C(w_{i-n+1},\dots,w_{i-1})}
 \end{equation*}
-Radi jednostavne implementacije na pocetak $W$ se dodaje $n-1$ "prazna" rec.
+Radi jednostavnije implementacije na početak $W$ se dodaje $n-1$ "prazna" reč.
 
-Sledeci problem je kako odrediti broj $n$.
-On ne sme da bude preveliki zato sto se time smanjuje sansa da se neka kombinacija reci te duzine uopste nasla u trening skupu.
-Cak i za male vrednosti moguce je da se neka sekvenca nije ranije videla. 
-Taj problem se resava smanjenjem $n$ ukoliko ne postoji ta sekvenca duzine $n$ pa koriscenjem te verovatoce ili nekim postupkov ugladjivanja.
+Veliki problem sa ovim modelom je što onemogućava predviđanje n-grama koji nisu prethodno viđeni u trening skupu jer bi im bila dodeljena verovatnoća 0.
+Čak i za male vrednosti $n$ ovo nije nerealna situacija.
+Kao kompenzacija za to moguće je umesto fiksnog, koristiti promenljivo $n$ koje bi krenulo od neke zadate vrednosti i smanjivalo se sve dok ne pronađe bar jedna instanca tog n-grama.
+Onda je moguće direktno korisiti tu vrednost ili na neki način uračunati koliko se parametar smanjio pre nego što je n-gram pronađen.
 
 \subsection{Dekodiranje}
 Konstrukcijom svih prethodno opisanih komponenti i njihovim treniranjem, model je gotov i spreman za upotrebu.
-Jedino sto ostaje je pretraziti prostor dopustivih recenica da se pronadje ona koja najvise odgovara glasovnom signalu.
-U praksi, taj prostor je veoma veliki i njegova pretraga je eksponencijalne slozenosti (svaka moguca kombinacija reci u recenici) stoga nije izvodljivo traziti egzaktno resenje.
-Umesto toga se koristi heuristicki beam search algoritam. Ideja je da se resenje gradi iterativno i u svakom trenutku umesto testiranja svih mogucih puteva biramo $b$ najverovatnijih puteva.
-Parametar $b$ se bira tako da balansira velicinu prostora za pretrazivanje i vreme potrebno za njegov obilazak.
-Algoritam je dakle sledeci: odredimo verovatnocu za svaku rec da bude prva pa od njih izaberemo $b$ najverovatnijih. U sledecem koraku svaki od tih $b$ reci produzujemo sledecom i od njih ponovo biramo $k$ najverovatnijih.
-Ovaj postupak se ponavlja sve dok ne dodjemo do kraja recenice i ona predstavlja konacnu transkripciju govora.
+Jedino što ostaje je pretražiti prostor dopustivih rečenica da se pronađe ona koja najviše odgovara glasovnom signalu.
+U praksi, taj prostor je veoma veliki i njegova celokupna pretraga je eksponencijalne složenosti, stoga nije izvodljivo tražiti egzaktno rešenje.
+Umesto toga se koristi heuristički, \textbf{beam search algoritam}.
+Ideja je da se rešenje gradi iterativno i u svakom trenutku umesto testiranja svih mogućih puteva gramzivo se bira samo $b$ najverovatnijih.
+Parametar $b$ se određuje tako da balansira veličinu prostora za pretraživanje i vreme potrebno za njegov obilazak.
+Dakle, algoritam počinje od niza sa jednom praznom rečenicom.
+Jedan korak se sastoji od produživanja svakog elementa iz niza svim mogućim rečima i brisanja svih osim $b$ najverovatnijih.
+Ta verovatnoća se jednostavno računa množenjem verovatnoće nove reči sa verovatnoćom rečenice koja je dopunjena.
+Ovaj postupak se ponavlja sve do kraja svih rečenica iz niza kada se najverovatnija od njih proglašava za konačnu transkripciju govora.
 
 \section{End-to-end modeli}
 \label{sec:e2e}
@@ -304,7 +309,7 @@ Ovaj postupak se ponavlja sve dok ne dodjemo do kraja recenice i ona predstavlja
 % mogu sami da zakljuce bolju reprezentaciju od MFCC (npr pomocu CNN)
 
 % mane u ondosu na HMM
-% vice broj podataka
+% veci broj podataka
 
 % modeli zasnovani na paznji i CTC modeli
 
