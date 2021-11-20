@@ -69,8 +69,8 @@
 \maketitle
 
 \abstract{
-  Prepoznavanje govora je jedan od osnovnih zadataka iz oblasti obrade prirogog jezika (eng.~{\em natural laguage processing}). 
-  Iako je prirodno za ljude, ovo je uvek bio težak zadatak za mašine.
+  Prepoznavanje govora je jedan od osnovnih zadataka iz oblasti obrade prirodnog jezika (eng.~{\em natural laguage processing}). 
+  Iako je prirodan za ljude, ovo je uvek bio težak zadatak za mašine.
   Tema ovog rada je da približi čitaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznačajnijim arhitekturama ovih sistema.
   Biće reči o klasičnim, statističkim modelima kao i modernijim modelima potpuno zasnovanim na dubokim neuronskim mrežama.
   Poseban deo će biti izdvojen za opisivanje načina evaluacije modela i pregled performansi za neke od najznačajnijih.
@@ -95,7 +95,7 @@ Taj postupak se naziva automatsko prepoznavanje govora.
 \textbf{Automatsko prepoznavanje govora} (eng.~{\em Automatic Speech Recognition, ASR}) je proces pretvaranja zvučnog signala govora u odgovarajući niz reči pomoću kompjutera.
 Neke od najznačajnijih primena ovih sistema danas su pametni lični asistenti (Google Assistant\footnote{https://assistant.google.com/}, Apple Siri\footnote{https://www.apple.com/siri/},\dots), transkripcija i pretraživanje audio sadržaja, automatsko titlovanje snimaka i pristupačnost.
 
-Iako su istraživanja na ovu temu počela još sredinom dvadesetog veka, popularnost je pošela da dobija tek u poslednjoj deceniji kada je uvođenje dubokih neuronskih mreza drastično povećalo performanse ovih sistema.
+Iako su istraživanja na ovu temu počela još sredinom dvadesetog veka, ovi sistemi su popularnost stekli tek u poslednjoj deceniji kada je uvođenje dubokih neuronskih mreža drastično povećalo njihove performanse.
 Ta razlika je bila dovoljna da učini ove sisteme praktično primenljivim u odnosu na prethodne koji su bili nezgodni za upotrebu zbog velikog broja grešaka koje su pravili.
 Prethodna decenija je videla i izjednačavanje sposobnosti računara i ljudi u prepoznavanju govora kada je kompanija Majkrosoft napravila sistem koji je ostvario iste rezultate kao ljudski eksperti na transkripciji Switchboard skupa podataka \cite{switchboard}.
 % https://blogs.microsoft.com/ai/historic-achievement-microsoft-researchers-reach-human-parity-conversational-speech-recognition/
@@ -152,38 +152,38 @@ Neki od najvećih izazova su:
 \section{Statistički model}
 \label{sec:statistical}
 
-Dugo vremena statisticki pristup je bio dominantan za sisteme za prepoznavanje govora.
-Iako je u skorije vreme pao u senku modela zasnovanih na dubokim neuronskim mrezama opisanim u poglavlju \ref{sec:e2e} ovaj model je jos uvek u sirokoj upotrebi i veoma vredan izucavanja.
+Dugo vremena statistički pristup je bio dominantan za sisteme za prepoznavanje govora.
+Iako je u skorije vreme pao u senku modela zasnovanih na dubokim neuronskim mrežama opisanim u poglavlju \ref{sec:e2e} ovaj model je jos uvek u širokoj upotrebi i veoma vredan izučavanja.
 
 % Large Vocabulary Continuous Speech Recognition a Review
-Cilj ovih sistema je da pronadju najverovatniju transkripciju za zadati ulaz.
-Formalno, neka je $\hat{W}$ optimalan niz reci za transkripciju nekog zvucnog signala $X$. Cilj je optimizovati formulu \cite{kamath2019nlp}:
+Cilj ovih sistema je da pronađu najverovatniju transkripciju za zadati ulaz.
+Formalno, neka je $\hat{W}$ optimalan niz reči za transkripciju nekog zvučnog signala $X$. Cilj je optimizovati formulu \cite{kamath2019nlp}:
 \begin{equation*}
   \hat{W} = \argmax_{W} P(W|X)
 \end{equation*}
-primenom Bajesove formule to mozemo da zapisemo kao:
+primenom Bajesove formule to se može zapisati kao:
 \begin{equation*}
   \hat{W} = \argmax_{W} \frac{P(X|W) P(W)}{P(X)}
 \end{equation*}
-a kako je $P(X)$ konstantno za konkretan ulaz, mozemo da ga eliminisemo:
+a kako je $P(X)$ konstantno za konkretan ulaz, može da se eliminiše:
 \begin{equation}
   \label{eq:stat1}
   \hat{W} = \argmax_{W} P(X|W) P(W)
 \end{equation}
-Ideja je da umesto modeliranja $P(W|X)$ sto je tesko, odvojeno modeliramo verovatnoce iz prethodne formule za koje imamo bolje tehnike.
+Ideja je umesto modeliranja $P(W|X)$ što je teško, odvojeno modelirati verovatnoće iz prethodne formule jer za to postoje bolje tehnike.
 
-Najprirodniji nacin za racunanje $P(X|W)$ bi bio da se podeli na reci i za svaku od njih racuna verovatnoca da je izgovorena.
-U nekim slucajevima, kao na primer kada treba prepoznati samo neki mali skup komandi, tada se i koristi ovaj pristup.
-Problem nastaje u sistemima sa velikim vokabularom zato sto postoji veliki broj varijacija u izgovoru reci, a trening skup sadrzi mozda par primera za svaku od njih sto nije dovoljno da se dobro nauci njeno prepoznavanje.
-Dakle, umesto na reci potrebna je finija podela i za to potrebu cemo koristiti foneme.
-\textbf{Foneme} su najmanje jezicke jedinice na osnovu kojih mogu da se razlikuju znacenja vecih jedinica.
-One postoje samo kao apstraktna ideja a njihova fizicka realizacija se zove glas.
+Najprirodniji način za računanje $P(X|W)$ bi bio da se $W$ podeli na reči i za svaku od njih računa verovatnoća da je izgovorena.
+U nekim slučajevima, kao na primer kada treba prepoznati samo neki mali skup komandi, tada se i koristi ovaj pristup.
+Problem nastaje u sistemima sa velikim vokabularom zato što postoji veliki broj varijacija u izgovoru reči, a trening skup sadrži možda par primera za svaku od njih što nije dovoljno da se dobro nauči njeno prepoznavanje.
+Dakle, umesto na reči potrebna je finija podela i za tu potrebu se koriste foneme.
+\textbf{Foneme} su najmanje jezičke jedinice na osnovu kojih mogu da se razlikuju značenja većih jedinica.
+One postoje samo kao apstraktna ideja, a njihova fizicka realizacija se zove glas.
 
-Ako je $S$ niz fonema, $P(X|W)$ iz formule \ref{eq:stat1} se razlaze i dobija se:
+Ako je $S$ niz fonema, $P(X|W)$ iz formule \ref{eq:stat1} se razlaže i dobija se:
 \begin{equation*}
   \hat{W} = \argmax_{W} \sum_{S} P(X,S|W) P(W)
 \end{equation*}
-sto se moze aproksimirati kao:
+što se može aproksimirati kao:
 \begin{equation}
   \label{eq:stat2}
   \hat{W} \approx \argmax_{W,S} P(X|S) P(S|W) P(W)
@@ -194,7 +194,7 @@ $P(S|W)$ je \textbf{model izgovora} (eng.~{\em pronunciation model}),
 a $P(W)$ se zove \textbf{jezički model} (eng.~{\em language model})\footnote{Neka literatura $P(X|W)$ naziva akustičkim modelom, a model izgovora tretira kao njegov deo. U ovom radu će biti podrazumevano da su oni odvojeni modeli.}.
 
 % https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/_images/ASR.png
-Na slici \ref{fig:statistical_model} je prikazana cela struktura statistickog modela od zvucnog signala do transkripcije:
+Na slici \ref{fig:statistical_model} je prikazana cela struktura statističkog modela od zvučnog signala do transkripcije:
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[scale=0.5]{statistical_model.png}
@@ -208,10 +208,10 @@ U nastavku će biti opisana svaka od prikazanih komponenti, njena uloga i način
 \subsection{Obrada zvučnog signala}
 \label{sec:obrada}
 Sirovi zvučni signal je veoma nepogodan za korišćenje zato što sadrži veliku količinu nebitnih informacija i šuma.
-Zbog toga se, pre prosleđivanja akustičkom modelu, signal prvo obrađuje tako da ostanu samo ključne karakteristike i smanje šum i veličina reprezentacije.
+Zbog toga se, pre prosleđivanja akustičkom modelu, signal prvo obrađuje tako da ostanu samo ključne karakteristike i smanji šum i veličina reprezentacije.
 
 Signal se deli na kratke segmente koji se zovu \textbf{okviri} (eng.~{\em frame}).
-Svaki od njih je fiksne duzine (obično 10-30 milisekundi) sa kratkim preklapanjem sa susednim okvirima radi smanjenja naglih promena prilikom prelaska iz jednog u drugi.
+Svaki od njih je fiksne dužine (obično 10-30 milisekundi) sa kratkim preklapanjem sa susednim okvirima radi smanjenja naglih promena prilikom prelaska iz jednog u drugi.
 Pretpostavka je da je u svakom okviru glas konstantan, to jest da se glasovi mogu menjati samo prelaskom iz jednog okvira u drugi.
 Na svaki od tih novodobijenih delova se zatim primenjuje neka vrsta spektralne analize najčešće zasnovana na Furijeovoj transformaciji kojom se izdvajaju samo njegove najbitnije karakteristike.
 Tačna reprezentacija koja se koristi varira u zavisnosti od modela, ali jedna od najpopularnijih je \textbf{MFCC} (Mel-Frequency Cepstral Coefficients) \cite{dave2013feature} zasnovana na Mel skali koja oponaša ljudski slušni sistem.
@@ -243,12 +243,12 @@ Primer jednog modela je prikazan na slici \ref{fig:hmm}.
 \end{figure}
 
 Konkretno za prepoznavanje govora, skriveni Markovljevi modeli se koriste za opisivanje svake foneme.
-Svaki od njih se sastoji od nekog zadatog broja stanja (obicno 3 ili 5), a obzervacije su okviri zvučnog signala cije su verovatnoće predstavljene kao mešavina Gausovih raspodela.
+Svaki od njih se sastoji od nekog zadatog broja stanja (obično 3 ili 5), a obzervacije su okviri zvučnog signala čije su verovatnoće predstavljene kao mešavina Gausovih raspodela.
 Raspodele verovatnoća su dobijene treniranjem modela na skupu podataka.
 Za svaku rečenicu iz trening skupa se konstruiše model spajanjem modela fonema u reči, pa reči u rečenicu.
 Na njega se onda primeni Baum-Welch algoritam koji popravlja verovatnoće da više odgovaraju datim podacima.
 
-Istrenirani model posle moze da predvidi najverovatniji niz fonema (stanja) za datu obzevaciju koristeci Vetrebi algoritam za pretragu.
+Istrenirani model posle može da predvidi najverovatniji niz fonema (stanja) za datu obzervaciju koristeći Vetrebi algoritam za pretragu.
 
 \subsection{Model izgovora}
 U prethodnoj sekciji je rečeno da se prilikom treniranja modeli fonema spajaju u modele reči, ali nije objašnjeno tačno kako se to radi.
@@ -310,7 +310,7 @@ Ovaj postupak se ponavlja sve do kraja svih rečenica iz niza kada se najverovat
 
 End-to-end model je ceo zasnovan na dubokim neuronskim mrežama.
 Za razliku od statističkog modela koji proces prepoznavanja govora deli u više složenijih celina, end-to-end model je po strukturi prostiji.
-Umesto razdvaljanja formule \ref{eq:stat1} pomoću Bajesovog pravila, on direktno računaa verovatnoću $P(W|X)$, to jest
+Umesto razdvajanja formule \ref{eq:stat1} pomoću Bajesovog pravila, on direktno računa verovatnoću $P(W|X)$, to jest
 bave se direktnim prevođenjem ulaznog zvučnog signala u niz grafema, karatera ili reči.
 To donosi velike prednosti, naime: više nije potreban ekspert za jezik nego se sve uči iz podataka, treniranje postaje lakše zbog jednostavnije strukture i performanse postaju bolje zato što se optimizuje samo jedna vrednost.
 Sa druge strane, pošto model treba sam sve da nauči, potrebna je veća količina podataka nego ako se koristi statistički model.
@@ -332,7 +332,7 @@ Cilj je napraviti preslikavanje $h$ koje slika proizvoljan zvučni signal u niz 
 h: (\mathbb{R}^m)^* \rightarrow L^* 
 \end{equation}
 U praksi je broj vremenskih trenutaka fiksiran na neku vrednost $T$.
-Iako je broj trenutaka fiksiran za zvučne signale, nizovi labela ne moraju biti iste dužine za svaku ulaznu instancu, stoga jednu trening instancu predstavlja par $(\textbf{x}, \textbf{z})$ gde je $\textbf{z}$ vektor labela duzine najvise $T$.
+Iako je broj trenutaka fiksiran za zvučne signale, nizovi labela ne moraju biti iste dužine za svaku ulaznu instancu, stoga jednu trening instancu predstavlja par $(\textbf{x}, \textbf{z})$ gde je $\textbf{z}$ vektor labela dužine najvise $T$.
 
 Ako $O$ označava test skup, tada se funkcija greške definiše na sledeći način:
 \begin{equation}
@@ -355,7 +355,7 @@ Iz tog razloga se uvodi preslikavanje $\mathcal{B}$ čija je uloga prečišćava
 \begin{equation*}
   \mathcal{B}: (L')^T \rightarrow L^U, U \leq T
 \end{equation*}
-Kako za jednu prečišćenu putanju $l$ moze postojati više mogućih izvornih putanja, verovatnoća njenog odabira jednaka sumi po svim izvornim putanjama.
+Kako za jednu prečišćenu putanju $l$ može postojati više mogućih izvornih putanja, verovatnoća njenog odabira jednaka je sumi po svim izvornim putanjama.
 \begin{equation}
 \label{eq:beta}
   P(l | x) = \sum_{\pi \in \mathcal{B}^{-1}(l)} p(\pi | \textbf{x})
@@ -377,7 +377,7 @@ Za razliku od CTC modela, ovi modeli se oslanjaju na \textbf{mehanizmam pažnje}
 Ova grupu modela će biti predstavljena na primeru LAS (eng.~{\em Listen, Attend and Spell}) modela \cite{chan2015las}. 
 
 Glavne komponente ovog modela su \textbf{slušalac} (eng.~{\em listener}) i \textbf{speler} (eng.~{\em speller}).
-Okvirno gledano, uloga slušaoca jeste da transformiše ulazni signal u karakteristike viseg nivoa, koje se prosleđuju speler komponenti da proizvede konačan niz karaktera. 
+Okvirno gledano, uloga slušaoca jeste da transformiše ulazni signal u karakteristike višeg nivoa, koje se prosleđuju speler komponenti da proizvede konačan niz karaktera. 
 
 Slično kao u poglavlju \ref{sec:ctc}, neka je $\textbf{x}$ = $(x_1,  x_2,  ...,  x_T)$ ulazni signal, a $\textbf{y}$ niz mogućih izlaznih karaktera (uključujući razmak, tačku, zarez, apostrof) i specijalnih karaktera (početak i kraj rečenice i nepoznat simbol).
 Cilj je modelovati $\textbf{y}$ kao uslovnu raspodelu u zavisnosti od ulaznog signala $\textbf{x}$ i prethodnih izlaza $y_j,  j \in (1,  i-1)$
@@ -388,7 +388,7 @@ Cilj je modelovati $\textbf{y}$ kao uslovnu raspodelu u zavisnosti od ulaznog si
 
 Skušalac je rekurentna neuronska mreža piramidalne strukture čiji zadatak je da napravi reprezentaciju zvuka višeg nivoa. 
 Kao što se može primetiti na slici \ref{fig:listener_model}, broj neurona se polovi u svakom sloju do izlaznog.
-Ova osobina omogućava smanjenje složenosti izračunavanja, što je veoma poželjno u slučaju kada je dužina zvučnog segmenta uska.
+Ova osobina omogućava smanjenje složenosti izračunavanja, što je veoma poželjno u slučaju kada je dužina zvučnog segmenta mala.
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[scale=0.3]{listener.png}
