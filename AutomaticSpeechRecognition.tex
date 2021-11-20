@@ -62,14 +62,14 @@
 
 \title{Automatsko prepoznavanje govora\\ \small{Seminarski rad u okviru kursa\\Metodologija stručnog i naučnog rada\\Matematički fakultet}}
 
-\author{Vladimir Vuksanović, Aleksa Kojadinović, Lazar Čeliković\\vladevuksan99@gmail.com, drugog, trećeg autora}
+\author{Vladimir Vuksanović, Aleksa Kojadinović, Lazar Čeliković\\vladevuksan99@gmail.com,  kojadinovic.aleksa98@gmail.com,  \\celikoviclazar@hotmail.com}
 
 %\date{9.~april 2015.}
 
 \maketitle
 
 \abstract{
-  Prepoznavanje govora je jedan od osnovnih zadataka iz oblasti obrade prirodnog jezika (eng.~{\em natural laguage processing}). 
+  Prepoznavanje govora je jedan od osnovnih zadataka iz oblasti obrade prirodnog jezika (eng.~{\em natural language processing}). 
   Iako je prirodan za ljude, ovo je uvek bio težak zadatak za mašine.
   Tema ovog rada je da približi čitaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznačajnijim arhitekturama ovih sistema.
   Biće reči o klasičnim, statističkim modelima kao i modernijim modelima potpuno zasnovanim na dubokim neuronskim mrežama.
@@ -87,12 +87,12 @@
 \label{sec:uvod}
 
 Govor je za ljude najintuitivniji i najprirodniji način komunikacije. 
-Zbog toga je u toku razvoja računarskih sistema, nastala ideja da isti vid komunikacije koristimo i za interakciju sa kompjuterima.
+Zbog toga je u toku razvoja računarskih sistema nastala ideja da isti vid komunikacije koristimo i za interakciju sa računarima.
 To bi znatno smanjilo potrebno predznanje za njihovo korišćenje i učnilio ih pristupačnijim većem broju ljudi. 
 Najveća prepreka ovoj ideji do skoro je bilo kako sa velikom tačnosti prepoznati šta je korisnik rekao.
 Taj postupak se naziva automatsko prepoznavanje govora.
 
-\textbf{Automatsko prepoznavanje govora} (eng.~{\em Automatic Speech Recognition, ASR}) je proces pretvaranja zvučnog signala govora u odgovarajući niz reči pomoću kompjutera.
+\textbf{Automatsko prepoznavanje govora} (eng.~{\em Automatic Speech Recognition, ASR}) je proces pretvaranja zvučnog signala govora u odgovarajući niz reči pomoću računara.
 Neke od najznačajnijih primena ovih sistema danas su pametni lični asistenti (Google Assistant\footnote{https://assistant.google.com/}, Apple Siri\footnote{https://www.apple.com/siri/},\dots), transkripcija i pretraživanje audio sadržaja, automatsko titlovanje snimaka i pristupačnost.
 
 Iako su istraživanja na ovu temu počela još sredinom dvadesetog veka, ovi sistemi su popularnost stekli tek u poslednjoj deceniji kada je uvođenje dubokih neuronskih mreža drastično povećalo njihove performanse.
@@ -117,7 +117,7 @@ Neki od najvećih izazova su:
   \item \textbf{Mala količina podataka za trening} --- 
   Za ostvarivanje dobrih rezultata potrebno je sakupiti više stotina ili čak hiljada sati labeliranih zvučnih snimaka koji treba da sadrže više govornika razlicitog pola i starosti, koji govore različitim akcentima. 
   Dok u skorije vreme jeste nastao porast u količini dostupnih podataka, veliki problem još uvek predstavlja reprezentativnost različitih varijacija u govoru i nedostatak podataka za jezike sa manjim brojem govornika. 
-  Zbog toga se istražuju alternativni načini za treniranje kao sto su samo-treniranje (eng.~{\em self-training}) \cite{baevski2020wav2vec}, iterativno treniranje \cite{park2020noisy} ili treniranje koristeći kompjuterski generisan glas \cite{hannun2014deep}. 
+  Zbog toga se istražuju alternativni načini za treniranje kao sto su samo-treniranje (eng.~{\em self-training}) \cite{baevski2020wav2vec}, iterativno treniranje \cite{park2020noisy} ili treniranje koristeći računarski generisan glas \cite{hannun2014deep}. 
   U dodatku \ref{sec:skupovi} se može naći tabela sa pregledom nekih od najpopularnijih trening skupova na engleskom jeziku.
   
   \item \textbf{Stil govora} --- 
@@ -141,7 +141,7 @@ Neki od najvećih izazova su:
   \item \textbf{Okruženje govornika} --- 
   Ovi sistemi će retko biti korišćeni u potpuno tihim prostorijama sa profesionalnom opremom za snimanje. Zbog toga treba da budu tolerantni na različite vrste pozadinske buke ili kvaliteta mikrofona. 
   Neke vrste šumova je moguće otkloniti analizom zvuka ili naprednijim metodama \cite{xu2015enhancement}, ali jedan od najvećih problema predstavlja postojanje drugih govornika u okolini.
-  Te signale je često teško razlikovati od glasa primarnig govornika, i samim tim teško ukloniti.
+  Te signale je često teško razlikovati od glasa primarnog govornika, i samim tim teško ukloniti.
   
   \item \textbf{Veličina rečnika} --- 
   Povećanje broja reči koje model može da prepozna takođe povećava njegovu složenost i otežava treniranje, ali se time dobija na tačnosti. 
@@ -226,7 +226,7 @@ Ovaj zadatak predstavlja idealan slučaj za primenu skrivenih Markovljevih model
 \textbf{Skriveni Markovljev model} (eng.~{\em hidden Markov model}) je dinamički sistem kojeg karakteriše sledeće:
 \begin{enumerate}
   \item $N$ skrivenih stanja $S = \{S_1, S_2, \dots, S_N\}$ pri cemu $q_t$ označava stanje u trenutku $t$
-  \item $M$ obzervacionih simbola $V = \{V_1, V_2, \dots, V_M\}$ pri cemu $o_t$ označava obzervaciju u trenutku $t$
+  \item $M$ obzervacionih simbola $V = \{V_1, V_2, \dots, V_M\}$ pri čemu $o_t$ označava obzervaciju u trenutku $t$
   \item Raspodela verovatnoća promene stanja predstavljena matricom $A=\{a_{ij}\}$ dimenzije $N \times N$ gde važi: $$a_{ij} = P(q_{t+1} = S_j | q_{t} = S_i) \quad 1 \leq i,j \leq N$$
   \item Raspodela verovatnoća obzervacionih simbola iz stanja $j$ predstavljena matricom $B=\{b_j(k)\}$ dimenzije $N \times M$ gde važi: $$b_j(k) = P(o_t = V_k | q_t = S_j) \quad 1 \leq j \leq N, 1 \leq k \leq M$$
   \item Raspodela inicijalnog stanja $\pi=\{\pi_i\}$ gde važi: $$\pi_i = P(q_1 = S_i) \quad 1 \leq i \leq N$$
@@ -266,7 +266,7 @@ Sa obzirom da današnji sistemi razlikuju oko 100.000 reči, ovo nimalo nije lak
 \subsection{Jezički model}
 Povratkom na formulu \ref{eq:stat2}, jezički model dodeljuje verovatnoću pojavljivanja $P(W)$ svakoj mogućoj sekvenci reči $W$.
 Ovde se uzima u obzir relativna učestalost reči, verovatnoća da se reči nađu jedna za drugom, i mogu da se vrše dodatne sintaksne i semantičke provere.
-Postoje rečenice koje zvuče slično ali nemaju sve semantičko znacenje.
+Postoje rečenice koje zvuče slično ali nemaju sve semantičko značenje.
 Tada se od njih bira ona koja ima najviše smisla.
 % primer
 
@@ -332,14 +332,14 @@ Cilj je napraviti preslikavanje $h$ koje slika proizvoljan zvučni signal u niz 
 h: (\mathbb{R}^m)^* \rightarrow L^* 
 \end{equation}
 U praksi je broj vremenskih trenutaka fiksiran na neku vrednost $T$.
-Iako je broj trenutaka fiksiran za zvučne signale, nizovi labela ne moraju biti iste dužine za svaku ulaznu instancu, stoga jednu trening instancu predstavlja par $(\textbf{x}, \textbf{z})$ gde je $\textbf{z}$ vektor labela dužine najvise $T$.
+Iako je broj trenutaka fiksiran za zvučne signale, nizovi labela ne moraju biti iste dužine za svaku ulaznu instancu, stoga jednu trening instancu predstavlja par $(\textbf{x}, \textbf{z})$ gde je $\textbf{z}$ vektor labela dužine najviše $T$.
 
 Ako $O$ označava test skup, tada se funkcija greške definiše na sledeći način:
 \begin{equation}
 \label{eq:LER}
 LER(h, O) = \frac{1}{|O|}\sum_{(\textbf{x}, \textbf{z}) \in O}\frac{ED(h(\textbf{x}), \textbf{z})}{\textbf{|z|}}
 \end{equation}
-gde $ED$ predstavlja edit rastojanje\footnote{minimalni broj izmena koji dovodi jedan niz karaktera do drugog, pri čemu dozvoljene izmene podrazumevaju brisanje, zamenu i umetanje karaktera}. Prethodna mera naziva se stopa greske labela (eng.~{\em label error rate - LER}).
+gde $ED$ predstavlja edit rastojanje\footnote{minimalni broj izmena koji dovodi jedan niz karaktera do drugog, pri čemu dozvoljene izmene podrazumevaju brisanje, zamenu i umetanje karaktera}. Prethodna mera naziva se stopa greške labela (eng.~{\em label error rate - LER}).
 Formula \ref{eq:LER} je prirodna ocena greške za probleme koji za cilj imaju minimizaciju greške prevođenja.
 
 Model se implementira kao rekurentna neuronska mreža koja za svaki od $T$ trenutaka ima $m$ ulaza, a izlaz je softmax sloj dimenzije $|L'|$, gde je $L'$ azbuka proširena blanko karakterom, $L' = L \cup \{\epsilon\}$.
@@ -371,7 +371,7 @@ Najjednostavniji, ali neoptimalan, jeste pohlepni odabir najbolje oznake za svak
 
 % RNN-T
 
-\subsection{Modeli zasnovani na paznji}
+\subsection{Modeli zasnovani na pažnji}
 
 Za razliku od CTC modela, ovi modeli se oslanjaju na \textbf{mehanizmam pažnje} (eng.~{\em attention mechanism}) za poravnjanje teksta sa zvukom i odbacuju problematičnu pretpostavku o nezavisnosti zvučnih segmenata na kojoj se CTC zasniva.
 Ova grupu modela će biti predstavljena na primeru LAS (eng.~{\em Listen, Attend and Spell}) modela \cite{chan2015las}. 
