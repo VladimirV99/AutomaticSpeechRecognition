@@ -153,7 +153,7 @@ Neki od najvećih izazova su:
 \label{sec:statistical}
 
 Dugo vremena statistički pristup je bio dominantan za sisteme za prepoznavanje govora.
-Iako je u skorije vreme pao u senku modela zasnovanih na dubokim neuronskim mrežama opisanim u poglavlju \ref{sec:e2e} ovaj model je jos uvek u širokoj upotrebi i veoma vredan izučavanja.
+Iako je u skorije vreme pao u senku modela zasnovanih na dubokim neuronskim mrežama (opisanim u poglavlju \ref{sec:e2e}) ovaj model je još uvek u širokoj upotrebi i veoma vredan izučavanja.
 
 % Large Vocabulary Continuous Speech Recognition a Review
 Cilj ovih sistema je da pronađu najverovatniju transkripciju za zadati ulaz.
@@ -170,7 +170,7 @@ a kako je $P(X)$ konstantno za konkretan ulaz, može da se eliminiše:
   \label{eq:stat1}
   \hat{W} = \argmax_{W} P(X|W) P(W)
 \end{equation}
-Ideja je umesto modeliranja $P(W|X)$ što je teško, odvojeno modelirati verovatnoće iz prethodne formule jer za to postoje bolje tehnike.
+Direktno modeliranje veličine $P(W|X)$ je teško. Umesto toga se odvojeno modeliraju verovatnoće iz prethodne formule jer za to postoje bolje tehnike.
 
 Najprirodniji način za računanje $P(X|W)$ bi bio da se $W$ podeli na reči i za svaku od njih računa verovatnoća da je izgovorena.
 U nekim slučajevima, kao na primer kada treba prepoznati samo neki mali skup komandi, tada se i koristi ovaj pristup.
@@ -208,7 +208,7 @@ U nastavku će biti opisana svaka od prikazanih komponenti, njena uloga i način
 \subsection{Obrada zvučnog signala}
 \label{sec:obrada}
 Sirovi zvučni signal je veoma nepogodan za korišćenje zato što sadrži veliku količinu nebitnih informacija i šuma.
-Zbog toga se, pre prosleđivanja akustičkom modelu, signal prvo obrađuje tako da ostanu samo ključne karakteristike i smanji šum i veličina reprezentacije.
+Zbog toga se, pre prosleđivanja akustičkom modelu, signal prvo obrađuje tako da se izdvoje ključne karakteristike, smanji šum i komprimuje reprezentacija.
 
 Signal se deli na kratke segmente koji se zovu \textbf{okviri} (eng.~{\em frame}).
 Svaki od njih je fiksne dužine (obično 10-30 milisekundi) sa kratkim preklapanjem sa susednim okvirima radi smanjenja naglih promena prilikom prelaska iz jednog u drugi.
@@ -218,22 +218,22 @@ Tačna reprezentacija koja se koristi varira u zavisnosti od modela, ali jedna o
 Ovako obrađen signal se prosleđuje akustičkom modelu.
 
 \subsection{Akustički model}
-% https://cs229.stanford.edu/section/cs229-hmm.pdf
-% https://www.cs.cmu.edu/~roni/10601-slides/hmm-for-asr-whw.pdf
 Akustički model je zadužen da pretvori obrađeni zvučni signal u niz fonema. 
 Ovaj zadatak predstavlja idealan slučaj za primenu skrivenih Markovljevih modela \cite{rabiner1989hmm}.
 
 \textbf{Skriveni Markovljev model} (eng.~{\em hidden Markov model}) je dinamički sistem kojeg karakteriše sledeće:
 \begin{enumerate}
-  \item $N$ skrivenih stanja $S = \{S_1, S_2, \dots, S_N\}$ pri cemu $q_t$ označava stanje u trenutku $t$
+  \item $N$ skrivenih stanja $S = \{S_1, S_2, \dots, S_N\}$ pri čemu $q_t$ označava stanje u trenutku $t$
   \item $M$ obzervacionih simbola $V = \{V_1, V_2, \dots, V_M\}$ pri čemu $o_t$ označava obzervaciju u trenutku $t$
   \item Raspodela verovatnoća promene stanja predstavljena matricom $A=\{a_{ij}\}$ dimenzije $N \times N$ gde važi: $$a_{ij} = P(q_{t+1} = S_j | q_{t} = S_i) \quad 1 \leq i,j \leq N$$
   \item Raspodela verovatnoća obzervacionih simbola iz stanja $j$ predstavljena matricom $B=\{b_j(k)\}$ dimenzije $N \times M$ gde važi: $$b_j(k) = P(o_t = V_k | q_t = S_j) \quad 1 \leq j \leq N, 1 \leq k \leq M$$
   \item Raspodela inicijalnog stanja $\pi=\{\pi_i\}$ gde važi: $$\pi_i = P(q_1 = S_i) \quad 1 \leq i \leq N$$
 \end{enumerate}
-Primer jednog modela je prikazan na slici \ref{fig:hmm}.
+Primer jednog modela je prikazan na slici \ref{fig:hmm}. Početno stanje se bira nasumično na osnovu neke raspodele verovatnoća.
+U svakom koraku se vrši promena stanja (novo stanje može da bude isto kao i prethodno) sa verovatnoćama zadatim u matrici $A$.
+Pri svakoj promeni očitava se tačno jedna od mogućih obzervacija. Verovatnoća obzervacije zavisi samo od trenutnog stanja i ona je zadata u matrici $B$.
+Ovi modeli omogućavaju efikasno procenjivanje raspodela verovatnoća na osnovu viđenih obzervacija i određivanje najverovatnijeg niza stanja ukoliko je poznat niz obzervacija.
 
-% https://www.researchgate.net/figure/State-transition-diagram-of-a-hidden-Markov-model_fig1_245563174
 \begin{figure}[h!]
   \begin{center}
     \includegraphics[scale=0.3]{hmm.png}
@@ -243,12 +243,24 @@ Primer jednog modela je prikazan na slici \ref{fig:hmm}.
 \end{figure}
 
 Konkretno za prepoznavanje govora, skriveni Markovljevi modeli se koriste za opisivanje svake foneme.
-Svaki od njih se sastoji od nekog zadatog broja stanja (obično 3 ili 5), a obzervacije su okviri zvučnog signala čije su verovatnoće predstavljene kao mešavina Gausovih raspodela.
-Raspodele verovatnoća su dobijene treniranjem modela na skupu podataka.
-Za svaku rečenicu iz trening skupa se konstruiše model spajanjem modela fonema u reči, pa reči u rečenicu.
-Na njega se onda primeni Baum-Welch algoritam koji popravlja verovatnoće da više odgovaraju datim podacima.
+Svaki od njih se sastoji od nekog zadatog broja stanja (obično 3 ili 5) i ima linearnu strukturu sa fiksiranim početnim i završnim stanjem.
+Obzervacije su okviri zvučnog signala čije su verovatnoće predstavljene kao mešavina Gausovih raspodela (eng.~{\em Gaussian mixture model}).
+Promene stanja su moguće samo u smeru od početnog prema završnom što omogućava implicitno poravnanje zvučnog signala sa transkripcijom.
+Ulančavanjem modela fonema se dobija model reči. Primer jednog takvog modela je prikazan na slici \ref{fig:word_hmm}.
 
-Istrenirani model posle može da predvidi najverovatniji niz fonema (stanja) za datu obzervaciju koristeći Vetrebi algoritam za pretragu.
+\begin{figure}[h!]
+  \begin{center}
+    \includegraphics[scale=0.3]{word_hmm.png}
+  \end{center}
+  \caption{Primer skrivenog Markovljevog modela za reč ``sat'' nastala nadovezivanjem modela odgovorajućih fonema. Model fonema se sastoji od 3 stanja. Svakom stanju odgovara najmanje jedan okvir obrađenog zvučnog signala}
+  \label{fig:word_hmm}
+\end{figure}
+
+Raspodele verovatnoća se dobijaju treniranjem modela na skupu podataka.
+Za svaku rečenicu iz trening skupa se konstruiše model spajanjem odgovarajućih modela reči.
+Na njega je moguće primeniti Baum-Welch algoritam koji prepravlja verovatnoće tako da više odgovaraju datim podacima.
+Tako istrenirani model može da predvidi najverovatniji niz fonema (stanja) za datu obzervaciju koristeći Vetrebi algoritam za pretragu.
+Izlaz iz akustičkog modela je niz mogućih fonema i verovatnoća koje im odgovaraju.
 
 \subsection{Model izgovora}
 U prethodnoj sekciji je rečeno da se prilikom treniranja modeli fonema spajaju u modele reči, ali nije objašnjeno tačno kako se to radi.
@@ -270,7 +282,7 @@ Postoje rečenice koje zvuče slično ali nemaju sve semantičko značenje.
 Tada se od njih bira ona koja ima najviše smisla.
 % primer
 
-Kako $P(W)$ ne zavisi od zvučnog signala, može se odvojeno trenirati na samo tekstualnom skupu podataka kojih postoji dosta više i imaju veći broj primera od skupova sa transkribovanim snimcima.
+Kako $P(W)$ ne zavisi od zvučnog signala, može se odvojeno trenirati na samo tekstualnom skupu podataka. Takvih skupova postoji mnogo više i imaju veći broj primera od skupova sa transkribovanim snimcima.
 U nekim slučajevima trenirana raspodela se može promeniti u zavisnosti od korisnika (npr. pametni lični asistenti prepoznaju kontakte na korisnikovom telefonu).
 
 Najčešći vid implementacije ovog modela je pomoću n-grama.
