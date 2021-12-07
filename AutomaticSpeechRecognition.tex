@@ -71,7 +71,7 @@
 \abstract{
   Prepoznavanje govora je jedan od osnovnih zadataka iz oblasti obrade prirodnog jezika (eng.~{\em natural language processing}). 
   Iako je prirodan za ljude, ovo je uvek bio težak zadatak za mašine.
-  Tema ovog rada je da približi čitaoca zadatku automatskog prepoznavanja govora, problemima koji se javljaju i najznačajnijim arhitekturama ovih sistema.
+  Tema ovog rada je da približi čitaocu zadatak automatskog prepoznavanja govora, problemima koji se javljaju i najznačajnijim arhitekturama ovih sistema.
   Biće reči o klasičnim, statističkim modelima kao i modernijim modelima potpuno zasnovanim na dubokim neuronskim mrežama.
   Poseban deo će biti izdvojen za opisivanje načina evaluacije modela i pregled performansi za neke od najznačajnijih.
 }
@@ -95,7 +95,7 @@ Taj postupak se naziva automatsko prepoznavanje govora.
 \textbf{Automatsko prepoznavanje govora} (eng.~{\em Automatic Speech Recognition, ASR}) je proces pretvaranja zvučnog signala govora u odgovarajući niz reči pomoću računara.
 Neke od najznačajnijih primena ovih sistema danas su pametni lični asistenti (Google Assistant\footnote{https://assistant.google.com/}, Apple Siri\footnote{https://www.apple.com/siri/},\dots), transkripcija i pretraživanje audio sadržaja, automatsko titlovanje snimaka i pristupačnost.
 
-Iako su istraživanja na ovu temu počela još sredinom dvadesetog veka, ovi sistemi su popularnost stekli tek u poslednjoj deceniji kada je uvođenje dubokih neuronskih mreža drastično povećalo njihove performanse.
+Iako su istraživanja na ovu temu počela još sredinom dvadesetog veka, ovi sistemi su popularnost stekli tek u poslednjoj deceniji kada je uvođenje dubokih neuronskih mreža drastično poboljšalo njihove performanse.
 Ta razlika je bila dovoljna da učini ove sisteme praktično primenljivim u odnosu na prethodne koji su bili nezgodni za upotrebu zbog velikog broja grešaka koje su pravili.
 Prethodna decenija je videla i izjednačavanje sposobnosti računara i ljudi u prepoznavanju govora kada je kompanija Majkrosoft napravila sistem koji je ostvario iste rezultate kao ljudski eksperti na transkripciji Switchboard skupa podataka \cite{switchboard}.
 % https://blogs.microsoft.com/ai/historic-achievement-microsoft-researchers-reach-human-parity-conversational-speech-recognition/
@@ -107,7 +107,7 @@ Za glavne uzroke ovog naglog poboljšanja se smatraju \cite{hannun2021history}:
   \item Poboljšanje algoritama za mašinsko učenje i arhitektura modela
 \end{enumerate}
 
-U nastavku ovog rada će prvo biti navedeni neki izazovi na koje se nailazi prilikom modelovanja sistema za prepoznavanja govora, zatim će biti opisan način rada dva najpopularnija modela: statistički i end-to-end i na kraju će biti predstavljen način za njihovu evaluaciju.
+U nastavku ovog rada će prvo biti navedeni najveći izazovi koji se javljaju prilikom modelovanja sistema za prepoznavanja govora, zatim će biti opisan način rada dva najpopularnija modela: statističkog i end-to-end modela i na kraju će biti predstavljen način za njihovu evaluaciju.
 
 \section{Izazovi}
 % https://www.youtube.com/watch?v=q67z7PTGRi8
@@ -193,7 +193,6 @@ $P(X|S)$ se naziva \textbf{akusticki model} (eng.~{\em acoustic model}),
 $P(S|W)$ je \textbf{model izgovora} (eng.~{\em pronunciation model}),
 a $P(W)$ se zove \textbf{jezički model} (eng.~{\em language model})\footnote{Neka literatura $P(X|W)$ naziva akustičkim modelom, a model izgovora tretira kao njegov deo. U ovom radu će biti podrazumevano da su oni odvojeni modeli.}.
 
-% https://www.idiap.ch/software/bob/docs/bob/bob.kaldi/stable/_images/ASR.png
 Na slici \ref{fig:statistical_model} je prikazana cela struktura statističkog modela od zvučnog signala do transkripcije:
 \begin{figure}[h!]
   \begin{center}
@@ -280,7 +279,6 @@ Povratkom na formulu \ref{eq:stat2}, jezički model dodeljuje verovatnoću pojav
 Ovde se uzima u obzir relativna učestalost reči, verovatnoća da se reči nađu jedna za drugom, i mogu da se vrše dodatne sintaksne i semantičke provere.
 Postoje rečenice koje zvuče slično ali nemaju sve semantičko značenje.
 Tada se od njih bira ona koja ima najviše smisla.
-% primer
 
 Kako $P(W)$ ne zavisi od zvučnog signala, može se odvojeno trenirati na samo tekstualnom skupu podataka. Takvih skupova postoji mnogo više i imaju veći broj primera od skupova sa transkribovanim snimcima.
 U nekim slučajevima trenirana raspodela se može promeniti u zavisnosti od korisnika (npr. pametni lični asistenti prepoznaju kontakte na korisnikovom telefonu).
@@ -296,7 +294,7 @@ Ako $C(x)$ označava broj pojavljivanja sekvence $x$ u trening skupu, verovatno�
 \begin{equation*}
   P(w_i | w_{i-n+1},\dots,w_{i-1}) = \frac{C(w_{i-n+1},\dots,w_i)}{C(w_{i-n+1},\dots,w_{i-1})}
 \end{equation*}
-Radi jednostavnije implementacije na početak $W$ se dodaje $n-1$ "prazna" reč.
+Radi jednostavnije implementacije na početak $W$ se dodaje $n-1$ ``prazna'' reč.
 
 Veliki problem sa ovim modelom je što onemogućava predviđanje n-grama koji nisu prethodno viđeni u trening skupu jer bi im bila dodeljena verovatnoća 0.
 Čak i za male vrednosti $n$ ovo nije nerealna situacija.
@@ -321,10 +319,10 @@ Ovaj postupak se ponavlja sve do kraja svih rečenica iz niza kada se najverovat
 \label{sec:e2e}
 
 End-to-end model je ceo zasnovan na dubokim neuronskim mrežama.
-Za razliku od statističkog modela koji proces prepoznavanja govora deli u više složenijih celina, end-to-end model je po strukturi prostiji.
+Za razliku od statističkog modela koji proces prepoznavanja govora deli u više složenijih celina, end-to-end model ima prostiju strukturu.
 Umesto razdvajanja formule \ref{eq:stat1} pomoću Bajesovog pravila, on direktno računa verovatnoću $P(W|X)$, to jest
 bave se direktnim prevođenjem ulaznog zvučnog signala u niz grafema, karatera ili reči.
-To donosi velike prednosti, naime: više nije potreban ekspert za jezik nego se sve uči iz podataka, treniranje postaje lakše zbog jednostavnije strukture i performanse postaju bolje zato što se optimizuje samo jedna vrednost.
+To donosi velike prednosti. Više nije potreban ekspert za jezik nego se sve uči iz podataka. Treniranje postaje lakše zbog jednostavnije strukture i performanse postaju bolje zato što se optimizuje samo jedna vrednost.
 Sa druge strane, pošto model treba sam sve da nauči, potrebna je veća količina podataka nego ako se koristi statistički model.
 
 Glavni problem ovim modelima je kako odrediti kom delu zvuka odgovara deo transkripcije.
@@ -378,7 +376,7 @@ Imajući u vidu sve prethodno navedeno, zadatak preslikavanja $h$ je odabir najv
 \label{eq:h_x}
   h(x) = \argmax_{l \in L^U} P(l | \textbf{x})
 \end{equation}
-Ovo je moguće na više načina.
+Ovo je moguće uraditi na više načina.
 Najjednostavniji, ali neoptimalan, jeste pohlepni odabir najbolje oznake za svaki vremenski trenutak ponaosob, ali postoje i drugi algoritmi koji daju bolje rezultate.
 
 % RNN-T
@@ -398,7 +396,7 @@ Cilj je modelovati $\textbf{y}$ kao uslovnu raspodelu u zavisnosti od ulaznog si
   P(y | x) = \prod_i P(y_i | x, y_j, j < i)
 \end{equation}
 
-Skušalac je rekurentna neuronska mreža piramidalne strukture čiji zadatak je da napravi reprezentaciju zvuka višeg nivoa. 
+Slušalac je rekurentna neuronska mreža piramidalne strukture čiji zadatak je da napravi reprezentaciju zvuka višeg nivoa. 
 Kao što se može primetiti na slici \ref{fig:listener_model}, broj neurona se polovi u svakom sloju do izlaznog.
 Ova osobina omogućava smanjenje složenosti izračunavanja, što je veoma poželjno u slučaju kada je dužina zvučnog segmenta mala.
 \begin{figure}[h!]
@@ -415,9 +413,9 @@ Na izlaz $y_i$ utiče stanje $s_i$ i kontekst $c_i$.
 Stanje se računa rekurentno na osnovu prethodnog stanja, izlaza i konteksta, a kontekst se izračunava korišćenjem standardnog mehanizma pažnje.
 Intuitivno, kontekst prikuplja relevantno znanje o okolnim zvučnim segmentima potrebnim za predikciju narednog karaktera, na taj način određujući koliko znanje o okolini utiče na znanje o trenutnom karakteru.
 Struktura ove mreže je prikazana na slici \ref{fig:speller_model}. 
-%  \begin{equation}
-% \label{eq:state}
-% s_i = RNN (s_{i-1},  y_{i-1},  c_{i-1})
+% \begin{equation}
+%   \label{eq:state}
+%   s_i = RNN (s_{i-1},  y_{i-1},  c_{i-1})
 % \end{equation}
 \begin{figure}[h!]
   \begin{center}
@@ -464,10 +462,6 @@ Uprkos tome što su end-to-end modeli dosta korišćeniji u praksi zbog generaln
 Ovaj rad je bio samo uvod u automatsko prepoznavanje govora i čitalac se poziva da samostalno nastavi istraživanje na ovu temu.
 Radovi iz literature sadrže više informacija o konceptima i implementaciji pomenutih modela koje su bile izvan opsega ovog rada i predstavljaju dobar početak za dalje istraživanje.
 
-% \section{Osnovna uputstva}
-% Vaš seminarski rad mora da sadrži najmanje jednu \textbf{sliku}, najmanje jednu \textbf{tabelu} i najmanje \textbf{sedam referenci} u spisku literature. Najmanje jedna slika treba da bude originalna i da predstavlja neke podatke koje ste Vi osmislili da treba da prezentujete u svom radu. Isto važi i za najmanje jednu tabelu. 	Od referenci, neophodno je imati bar jednu \textbf{knjigu}, bar jedan \textbf{naučni članak} iz odgovarajućeg časopisa i bar jednu adekvatnu \textbf{veb adresu}. 
-% \textbf{Dužina seminarskog rada treba da bude od 10 do 12 strana.} Svako prekoračenje ili potkoračenje biće kažnjeno sa odgovarajućim brojem poena. Eventualno, nakon strane 12, može se javiti samo tekst poglavlja \textbf{Dodatak} koji sadrži nekakav dodatni k\^{o}d, ali je svakako potrebno da rad može da se pročita i razume i bez čitanja tog dodatka. 
-
 \addcontentsline{toc}{section}{Literatura}
 \appendix
 \bibliography{seminarski} 
@@ -476,15 +470,12 @@ Radovi iz literature sadrže više informacija o konceptima i implementaciji pom
 
 \appendix
 
-% dodatak: pregled skupa podataka za trening
-% https://github.com/double22a/speech_dataset
-% CommonVoice - https://commonvoice.mozilla.org/en/datasets
 % TIMIT - https://catalog.ldc.upenn.edu/LDC93S1 https://github.com/philipperemy/timit
-% Switchboard 1 - https://catalog.ldc.upenn.edu/LDC97S62 https://www.kaggle.com/nltkdata/switchboard
+% Switchboard-1 - https://catalog.ldc.upenn.edu/LDC97S62 https://www.kaggle.com/nltkdata/switchboard
 % LibriSpeech - https://openslr.org/12/ https://www.danielpovey.com/files/2015_icassp_librispeech.pdf
-% GigaSpeech - 
-% WSJ1 - https://catalog.ldc.upenn.edu/LDC94S13A
-% Fisher
+% CommonVoice - https://commonvoice.mozilla.org/en/datasets
+% GigaSpeech - https://github.com/SpeechColab/GigaSpeech
+% VoxPopuli - https://github.com/facebookresearch/voxpopuli
 \section{Dodatak: Pregled skupova podataka}
 \label{sec:skupovi}
 
@@ -501,18 +492,8 @@ Radovi iz literature sadrže više informacija o konceptima i implementaciji pom
     CommonVoice   & 2015          & 75.879         & reči               \\
     GigaSpeech    & 10.000        & nepoznato      & reči               \\
     VoxPopuli     & 543           & 413.581        & reči               \\
-    % Naziv skupa   & Duzina (sati) & Broj recenica & Broj govornika & Nivo transkripcije \\
-    % \hline
-    % TIMIT         & 5,4           & 6300          & 630            & foneme, reci       \\ 
-    % Switchboard-1 & 260           & 2438 konv     & 543            & reci               \\ 
-    % LibriSpeech   & 1000 (982.1)  & nepoznato     & 1166           & reci               \\ 
-    % CommonVoice   & 2015          & nepoznato     & 75.879         & reci               \\
-    % GigaSpeech    & 10.000        & ?             & nepoznato      & reci               \\
-    % VoxPopuli     & 543           & 1313          & 413.581        & reci               \\
-    % WSJ 1         & 80            & nepoznato     & nepoznato      & reci               \\
     \hline
   \end{tabular}
-  % \label{tab:tabela1}
 \end{center}
 \end{table}
 
