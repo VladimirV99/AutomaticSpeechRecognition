@@ -1,0 +1,176 @@
+ % !TEX encoding = UTF-8 Unicode
+
+\documentclass[a4paper]{report}
+
+\usepackage[T2A]{fontenc} % enable Cyrillic fonts
+\usepackage[utf8x,utf8]{inputenc} % make weird characters work
+\usepackage[serbian]{babel}
+%\usepackage[english,serbianc]{babel}
+\usepackage{amssymb}
+
+\usepackage{color}
+\usepackage{url}
+\usepackage[unicode]{hyperref}
+\hypersetup{colorlinks,citecolor=green,filecolor=green,linkcolor=blue,urlcolor=blue}
+
+\newcommand{\odgovor}[1]{\textcolor{blue}{#1}}
+
+\begin{document}
+
+\title{Automatsko prepoznavanje govora\\ \small{Vladimir Vuksanović, Aleksa Kojadinović, Lazar Čeliković}}
+
+\maketitle
+
+\tableofcontents
+
+\chapter{Uputstva}
+\emph{Prilikom redavanja odgovora na recenziju, obrišite ovo poglavlje.}
+
+Neophodno je odgovoriti na sve zamerke koje su navedene u okviru recenzija. Svaki odgovor pišete u okviru okruženja \verb"\odgovor", \odgovor{kako bi vaši odgovori bili lakše uočljivi.} 
+\begin{enumerate}
+
+\item Odgovor treba da sadrži na koji način ste izmenili rad da bi adresirali problem koji je recenzent naveo. Na primer, to može biti neka dodata rečenica ili dodat pasus. Ukoliko je u pitanju kraći tekst onda ga možete navesti direktno u ovom dokumentu, ukoliko je u pitanju duži tekst, onda navedete samo na kojoj strani i gde tačno se taj novi tekst nalazi. Ukoliko je izmenjeno ime nekog poglavlja, navedite na koji način je izmenjeno, i slično, u zavisnosti od izmena koje ste napravili. 
+
+\item Ukoliko ništa niste izmenili povodom neke zamerke, detaljno obrazložite zašto zahtev recenzenta nije uvažen.
+
+\item Ukoliko ste napravili i neke izmene koje recenzenti nisu tražili, njih navedite u poslednjem poglavlju tj u poglavlju Dodatne izmene.
+\end{enumerate}
+
+Za svakog recenzenta dodajte ocenu od 1 do 5 koja označava koliko vam je recenzija bila korisna, odnosno koliko vam je pomogla da unapredite rad. Ocena 1 označava da vam recenzija nije bila korisna, ocena 5 označava da vam je recenzija bila veoma korisna. 
+
+NAPOMENA: Recenzije ce biti ocenjene nezavisno od vaših ocena. Na osnovu recenzije ja znam da li je ona korisna ili ne, pa na taj način vama idu negativni poeni ukoliko kažete da je korisno nešto što nije korisno. Vašim kolegama šteti da kažete da im je recenzija korisna jer će misliti da su je dobro uradili, iako to zapravo nisu. Isto važi i na drugu stranu, tj nemojte reći da nije korisno ono što jeste korisno. Prema tome, trudite se da budete objektivni. 
+
+\chapter{Prvi recenzent \odgovor{--- ocena:} }
+\section{O čemu rad govori?}
+Seminarski rad \emph{Automatsko prepoznavanje govora} dobro uvodi u tematiku rada sa jasnom definicijom, kratkom istorijom pomoću koje objašnjava poboljšanje performansi sistema za automatsko prepoznavanje govora (poboljšanje dolazi sa korišćenjem dubokih neuronskih mreža). Predstavlja određene probleme sa kojima se susrećemo pri kreiranju modela sistema za prepoznavanje govora, detaljno i jasno ih objašnjava i daje potencijalna rešenja. Zatim, predstavlja dva konkertna modela: statistički model (model koji je ranije bio dominatan) i end-to-end model (model koji je zasnovan na rekurentnim neuronskim mrežama). Postupno, bez previše detalja i na jasan način, objašnjava način na koji rade, prikazuje funkcije koje treba da maksimizuju, kao i razlike među datim modelima. Na samo kraju, prikazuje metriku koja se koristi za evaluaciju prikazanih modela radi procene njihovog kvaliteta.
+
+\section{Krupne primedbe i sugestije}
+U trećem poglavlju smatram da bi deo o akustičkom modelu mogao biti malo detaljnije i jasnije objašnjen i da ne bi bilo loše da se doda jedan konkretan primer ako bi to omogućilo bolje razumevanje ovog dela. U četvrtom poglavlju u delu 4.2 nije najjasnije šta tačno predstavlja stanje $s_i$.
+
+\section{Sitne primedbe}
+Štamparske i stilske greške:
+\begin{itemize}
+  \item Sažetak:
+  \begin{itemize}
+  \item ... približi čitaoca zadatku ... $->$ ... približi čitaocu zadatak ...
+ \end{itemize}
+\end{itemize}
+
+\begin{itemize}
+  \item Poglavlje 1:
+  \begin{itemize}
+  \item ... povećalo njihove performanse. $->$ ... poboljšalo njihove performanse.
+  \item ... neki izazovi na koje se nailazi ... $->$ ... pojedini izazovi sa kojima se susrećemo ...
+  \item ... dva najpopularnija modela: statistički i end-to-end $->$ ... dva najpopularnija modela: statističkog i end-to-end modela...
+ \end{itemize}
+\end{itemize}
+
+\begin{itemize}
+  \item Poglavlje 3:
+  \begin{itemize}
+  \item ... mrežama opisanim u poglavlju 4 ovaj model ... $->$  ... mrežama (opisanim u poglavlju 4) ovaj model ...
+  \item Sledeće rečenice su loše kontruisane, popraviti ih:
+  \begin{itemize}
+      \item Ideja je umesto modeliranja $P(W|X)$ što je teško, odvojeno modelirati verovatnoće iz prethodne formule jer za to postoje bolje tehnike.
+      \item ... signal prvo obrađuje tako da ostanu samo ključne karakteristike i smanji šum i veličina reprezentacije ... 
+  \end{itemize}
+  \item Istrenirani model posle može ... $->$ Istrenirani model može ...
+  \item ... ali nemaju sve semantičko značenje... $->$ ... ali nemaju isto semantičko značenje ... ?
+  \item Kako $P(W)$ ne zavisi od zvučnog signala, može se odvojeno trenirati na samo tekstualnom skupu podataka kojih postoji dosta više i imaju veći broj primera od skupova sa transkribovanim snimcima. $->$
+Kako $P(W)$ ne zavisi od zvučnog signala, može se odvojeno trenirati na samo tekstualnom skupu podataka. Takvih skupova postoji dosta i imaju veći broj primera od skupova sa transkribovanim snimcima. 
+ \end{itemize}
+\end{itemize}
+
+\begin{itemize}
+    \item Poglavlje 4:
+    \begin{itemize}
+        \item ... end-to-end model je po strukturi prostiji. $->$ ... end-to-end model ima jednostavniju strukturu.
+        \item To donosi velike prednosti, naime: više nije potreban ekspert za jezik nego se sve uči iz podataka, treniranje postaje ... $->$ 
+        To donosi velike prednosti. Naime, više nije potreban ekspert za jezik nego se sve uči iz podataka. Treniranje postaje ...
+        \item Ovo je moguće na više načina. $->$ Ovo je moguće uraditi na više načina.
+        \item Skušalac ... $->$ Slušalac ...
+    \end{itemize}
+\end{itemize}
+  
+
+\section{Provera sadržajnosti i forme seminarskog rada}
+
+\begin{enumerate}
+\item Da li rad dobro odgovara na zadatu temu?\\
+Da.
+\item Da li je nešto važno propušteno?\\
+Nije.
+\item Da li ima suštinskih grešaka i propusta?\\
+Nema.
+\item Da li je naslov rada dobro izabran?\\
+Jeste.
+\item Da li sažetak sadrži prave podatke o radu?\\
+Da.
+\item Da li je rad lak-težak za čitanje?\\
+Skoro ceo rad je lak za čitanje, osim pojedinih delova koji su navedeni u primedbama.
+\item Da li je za razumevanje teksta potrebno predznanje i u kolikoj meri?\\
+Rad je lakše razumeti ako ste upoznati sa uslovnom verovatnoćom i mašinskim učenjem.
+\item Da li je u radu navedena odgovarajuća literatura?\\
+Jeste.
+\item Da li su u radu reference korektno navedene?\\
+Jesu.
+\item Da li je struktura rada adekvatna?\\
+Jeste.
+\item Da li rad sadrži sve elemente propisane uslovom seminarskog rada (slike, tabele, broj strana...)?\\
+Da.
+\item Da li su slike i tabele funkcionalne i adekvatne?\\
+Jesu.
+\end{enumerate}
+
+\section{Ocenite sebe}
+ d) malo upućeni 
+
+
+
+\chapter{Drugi recenzent \odgovor{--- ocena:} }
+\section{O čemu rad govori?}
+Може се рећи да рад представља увод у аутоматско препознавање говора кроз основне поjмове, наjзначаjниjе моделе и проблеме коjи се могу jавити.
+
+\section{Krupne primedbe i sugestije}
+Рад jе лепо урађен, повезано и комплетно као jедна целина, поменути су и обjашњени наjзначаjниjи модели за аутоматско препознавање говора, нема неких крупних примедби, евентуално додати можда jош слика.
+
+\section{Sitne primedbe}
+Дешава се да речи понегде "искачу"из маргина текста, тj. нису добро поравњане.
+
+\section{Provera sadržajnosti i forme seminarskog rada}
+\begin{enumerate}
+\item Da li rad dobro odgovara na zadatu temu?\\
+Да, рад jе комплетан одговор на задату тему.
+\item Da li je nešto važno propušteno?\\
+Не, покривени су наjзначаjниjи поjмови.
+\item Da li ima suštinskih grešaka i propusta?\\
+Не, рад суштински делуjе добро.
+\item Da li je naslov rada dobro izabran?\\
+Наслов jе адекватно изабран.
+\item Da li sažetak sadrži prave podatke o radu?\\
+Да, садржи исправне податке о раду.
+\item Da li je rad lak-težak za čitanje?\\
+Тема jе занимљива, рад ниjе тежак за читање.
+\item Da li je za razumevanje teksta potrebno predznanje i u kolikoj meri?\\
+Неко основно предзнање jе сасвим довољно.
+\item Da li je u radu navedena odgovarajuća literatura?\\
+Да, сва литература jе уредно наведена.
+\item Da li su u radu reference korektno navedene?\\
+Да, коректно су наведене.
+\item Da li je struktura rada adekvatna?\\
+Структура рада jе адекватна.
+\item Da li rad sadrži sve elemente propisane uslovom seminarskog rada (slike, tabele, broj strana...)?\\
+Садржи све основне ствари потребне за jедан семинарски рад.
+\item Da li su slike i tabele funkcionalne i adekvatne?\\
+Да, уклапаjу се у оно о чему се прича.
+\end{enumerate}
+
+\section{Ocenite sebe}
+Средње упућен, углавном преко Apple Siri и мало преко неуронских мрежа.
+
+\chapter{Dodatne izmene}
+%Ovde navedite ukoliko ima izmena koje ste uradili a koje vam recenzenti nisu tražili. 
+
+\end{document}
+
+
