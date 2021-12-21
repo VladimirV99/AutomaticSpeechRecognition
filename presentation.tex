@@ -137,12 +137,12 @@
 \begin{frame}
   \frametitle{End-to-end model}
   \begin{itemize}
-      \item End-to-end model zasnovan je na dubokim neuronskim mrežama i ima
-prostiju strukturu od statističkog modela.
-    \item On se bavi direktnim prevođenjem ulaznog signala u niz grafema, karatera ili reči.
-    \item Treniranje postaje lakše zbog jednostavnije strukture.
-    \item Sa druge strane potrebna je veća količina podataka nego ako se koristi statistički model.
-    \item U odnosu na način rešavanja, razlikujemo \textbf{CTC model} \cite{graves2006ctc} i \textbf{model zasnovan na pažnji} \cite{chan2015las}. 
+    \item Zasnovan na dubokim neuronskim mrežama 
+    \item Ima prostiju strukturu od statističkog modela
+    \item On se bavi direktnim prevođenjem ulaznog signala u niz grafema, karatera ili reči
+    \item Treniranje postaje lakše zbog jednostavnije strukture
+    \item Sa druge strane potrebna je veća količina podataka nego ako se koristi statistički model
+    \item U odnosu na način rešavanja, razlikujemo \textbf{CTC model} \cite{graves2006ctc} i \textbf{model zasnovan na pažnji} \cite{chorowski2015attentionbased}
   \end{itemize} 
 \end{frame}
 
@@ -150,34 +150,29 @@ prostiju strukturu od statističkog modela.
 \begin{frame}
   \frametitle{CTC (Connectionist Temporal Classification)}
   \begin{itemize}
-      \item Cilj je napraviti preslikavanje $h$ koje slika proizvoljan zvučni signal u niz labela:
-       \begin{equation}
-        \label{eq:pres1}
-        h: (\mathbb{R}^m)^* \rightarrow L^* 
-        \end{equation}
-        
-        \item Ako $O$ označava test skup, tada se funkcija greške definiše na sledeći način:
-        \begin{equation}
-        \label{eq:LER}
-        LER(h, O) = \frac{1}{|O|}\sum_{(\textbf{x}, \textbf{z}) \in O}\frac{ED(h(\textbf{x}), \textbf{z})}{|z|}
-        \end{equation}
-        \item Model se implementira kao rekurentna neuronska mreža koja za svaki od $T$ trenutaka ima $m$ ulaza, a izlaz je softmax sloj dimenzije $|L'|$, gde je $L'$ azbuka proširena blanko karakterom
-  \end{itemize}
-  
-   
+    \item Cilj je napraviti preslikavanje $h$ koje slika proizvoljan zvučni signal u niz labela:
+      \begin{equation*}
+      h: (\mathbb{R}^m)^* \rightarrow L^* 
+      \end{equation*}
+    \item Ako $O$ označava test skup, tada se funkcija greške definiše na sledeći način:
+      \begin{equation*}
+      LER(h, O) = \frac{1}{|O|}\sum_{(\textbf{x}, \textbf{z}) \in O}\frac{ED(h(\textbf{x}), \textbf{z})}{|\textbf{z}|}
+      \end{equation*}
+    \item Implementiran kao rekurentna neuronska mreža koja za svaki od $T$ trenutaka ima $m$ ulaza, a izlaz je softmax sloj dimenzije $|L'|$, gde je $L'$ azbuka proširena blanko karakterom
+  \end{itemize}  
 \end{frame}
 
 \subsection{Modeli zasnovani na pažnji}
 \begin{frame}
   \frametitle{Modeli zasnovani na pažnji}
   \begin{itemize}
-      \item Za razliku od CTC modela, ovi modeli se oslanjaju na \textbf{mehanizmam pažnje} (eng.~{\em attention mechanism}) i odbacuju pretpostavku o nezavisnosti zvučnih segmenata.
+      \item Za razliku od CTC modela, ovi modeli se oslanjaju na \textbf{mehanizam pažnje} (eng.~{\em attention mechanism}) i odbacuju pretpostavku o nezavisnosti zvučnih segmenata
       \item Glavne komponente ovog modela su:
         \begin{itemize} 
-            \item \textbf{Slušalac}  je rekurentna neuronska mreža piramidalne strukture čiji zadatak je da napravi reprezentaciju zvuka višeg nivoa. 
-            \item \textbf{Speler} je takođe rekurentna neuronska mreža koja proizvodi konačan niz karaktera
+          \item \textbf{Slušalac} -- rekurentna neuronska mreža piramidalne strukture čiji zadatak je da napravi reprezentaciju zvuka višeg nivoa
+          \item \textbf{Speler} -- rekurentna neuronska mreža koja proizvodi konačan niz karaktera
         \end{itemize}
-       \item Koristeći koncepte stanja i konteksta, verovatnoća odabira narednog karaktera zavisi od svih prethodnih karaktera.
+      \item Koristeći koncepte stanja i konteksta, verovatnoća odabira narednog karaktera zavisi od svih prethodnih karaktera
   \end{itemize}
 \end{frame}
 
